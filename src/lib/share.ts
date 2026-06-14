@@ -185,7 +185,7 @@ export async function generateStoryImage(opts: StoryTemplateOptions): Promise<Bl
   ctx.fillText(footer ?? 'Envoie-moi un message anonyme', STORY_W / 2, STORY_H - 250)
 
   // Pill button
-  const pillText = 'whispers.app'
+  const pillText = 'whispers.yotech.mg'
   ctx.font = "500 34px 'Inter', sans-serif"
   const pillW = ctx.measureText(pillText).width + 80
   const pillH = 84
