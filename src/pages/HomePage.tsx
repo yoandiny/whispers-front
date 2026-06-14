@@ -74,7 +74,7 @@ export function HomePage() {
               style={{ background: '#c8aa82', color: '#0e0e0f', fontWeight: 500 }}
             >
               <Share2 size={14} />
-              Partager en story
+              Partager
             </button>
           </div>
         </div>
