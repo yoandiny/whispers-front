@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Send, Lock } from 'lucide-react'
 import api from '@/lib/api'
 import { BackButton } from '@/components/shared/BackButton'
+import { LoadingScreen } from '@/components/shared/LoadingScreen'
 
 const PROMPTS = [
   'What do you really think of me?',
@@ -18,25 +19,87 @@ export function SendPage() {
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
+  const [validatingUser, setValidatingUser] = useState(true)
+  const [recipientExists, setRecipientExists] = useState(false)
+  const [recipientUsername, setRecipientUsername] = useState('')
   const [activePrompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)])
 
-  if (!username) {
-    navigate('/')
-    return null
-  }
+  useEffect(() => {
+    if (!username) {
+      navigate('/', { replace: true })
+      return
+    }
+
+    let active = true
+
+    async function validateRecipient() {
+      setValidatingUser(true)
+      setRecipientExists(false)
+
+      try {
+        const res = await api.get(`/api/auth/public/${username}`)
+        if (!active) return
+        setRecipientUsername(res.data.data.username)
+        setRecipientExists(true)
+      } catch {
+        if (!active) return
+        setRecipientExists(false)
+      } finally {
+        if (active) setValidatingUser(false)
+      }
+    }
+
+    validateRecipient()
+
+    return () => {
+      active = false
+    }
+  }, [navigate, username])
 
   async function handleSend() {
-    if (!message.trim() || sending) return
+    if (!recipientExists || !message.trim() || sending) return
     setSending(true)
     try {
-      await api.post(`/api/messages/${username}`, { text: message.trim() })
+      await api.post(`/api/messages/${recipientUsername}`, { text: message.trim() })
       setSent(true)
-    } catch {
-      // Fallback — demo mode (backend not required for UI preview)
-      setSent(true)
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setRecipientExists(false)
+        return
+      }
     } finally {
       setSending(false)
     }
+  }
+
+  if (validatingUser) return <LoadingScreen />
+
+  if (!recipientExists) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0e0e0f' }}>
+        <div className="w-full max-w-sm text-center animate-fade-up">
+          <div className="mb-8">
+            <BackButton to="/" />
+          </div>
+          <h2
+            className="mb-3"
+            style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: '#ede8e1' }}
+          >
+            Compte introuvable
+          </h2>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a756d', lineHeight: 1.7 }}>
+            Le lien @{username} ne correspond à aucun utilisateur Whispers.
+          </p>
+          <button
+            onClick={() => navigate('/', { replace: true })}
+            className="ws-press mt-8 px-5 py-3 rounded-xl text-sm"
+            style={{ background: '#c8aa82', color: '#0e0e0f', fontFamily: "'Inter', sans-serif", fontWeight: 500 }}
+          >
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (sent) {
@@ -89,14 +152,14 @@ export function SendPage() {
             }}
           >
             <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.5rem', color: '#c8aa82' }}>
-              {username[0].toUpperCase()}
+              {recipientUsername[0].toUpperCase()}
             </span>
           </div>
           <p className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: '#7a756d' }}>
             Send an anonymous message to
           </p>
           <p className="mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, color: '#ede8e1' }}>
-            @{username}
+            @{recipientUsername}
           </p>
         </div>
 
