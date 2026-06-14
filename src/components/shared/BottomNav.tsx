@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Home, MessageCircle, User, Shield } from 'lucide-react'
+import { Home, MessageCircle, User, Shield, MessageSquareText } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 
 interface NavItem {
@@ -11,6 +11,7 @@ interface NavItem {
 const BASE_ITEMS: NavItem[] = [
   { to: '/home', label: 'Accueil', icon: Home },
   { to: '/inbox', label: 'Messages', icon: MessageCircle },
+  { to: '/conversations', label: 'Conversations', icon: MessageSquareText },
   { to: '/profile', label: 'Profil', icon: User },
 ]
 

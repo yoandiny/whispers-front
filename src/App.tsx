@@ -9,6 +9,9 @@ import { InboxPage } from '@/pages/InboxPage'
 import { HomePage } from '@/pages/HomePage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { AdminPage } from '@/pages/AdminPage'
+import { AnonConvPage } from '@/pages/AnonConvPage'
+import { ConversationsListPage } from '@/pages/ConversationsListPage'
+import { OwnerConvPage } from '@/pages/OwnerConvPage'
 
 export default function App() {
   return (
@@ -56,6 +59,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/conversations"
+          element={
+            <ProtectedRoute>
+              <ConversationsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/conversations/:id"
+          element={
+            <ProtectedRoute>
+              <OwnerConvPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin interface — admin role required */}
         <Route
@@ -69,6 +88,9 @@ export default function App() {
 
         {/* Public send page — anyone can send to a username */}
         <Route path="/:username" element={<SendPage />} />
+        
+        {/* Public anonymous conversation page */}
+        <Route path="/c/:token" element={<AnonConvPage />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -22,6 +22,7 @@ export function SendPage() {
   const [validatingUser, setValidatingUser] = useState(true)
   const [recipientExists, setRecipientExists] = useState(false)
   const [recipientUsername, setRecipientUsername] = useState('')
+  const [convToken, setConvToken] = useState<string | null>(null)
   const [activePrompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)])
 
   useEffect(() => {
@@ -56,16 +57,24 @@ export function SendPage() {
     }
   }, [navigate, username])
 
-  async function handleSend() {
+  async function handleSend(asConversation = false) {
     if (!recipientExists || !message.trim() || sending) return
     setSending(true)
     try {
-      await api.post(`/api/messages/${recipientUsername}`, { text: message.trim() })
+      if (asConversation) {
+        const res = await api.post(`/api/conversations`, { username: recipientUsername, text: message.trim() })
+        setConvToken(res.data.data.token)
+      } else {
+        await api.post(`/api/messages/${recipientUsername}`, { text: message.trim() })
+      }
       setSent(true)
     } catch (error: any) {
       if (error.response?.status === 404) {
         setRecipientExists(false)
         return
+      }
+      if (error.response?.status === 429) {
+        alert(error.response.data.message || 'Trop de requêtes, veuillez patienter.')
       }
     } finally {
       setSending(false)
@@ -116,15 +125,47 @@ export function SendPage() {
             className="mb-2"
             style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.6rem', color: '#ede8e1' }}
           >
-            Sent.
+            {convToken ? 'Conversation créée.' : 'Sent.'}
           </h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a756d' }}>
-            Your message was delivered anonymously.
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a756d', marginBottom: convToken ? '1.5rem' : '0' }}>
+            {convToken 
+              ? "Votre message a été envoyé. Voici le lien unique pour y accéder à tout moment :"
+              : "Your message was delivered anonymously."}
           </p>
+
+          {convToken && (
+            <div className="mb-4 text-left p-4 rounded-xl" style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <p className="text-xs mb-1.5" style={{ color: '#c87a7a', fontWeight: 500 }}>
+                ⚠️ Sauvegarde ce lien, il ne sera plus affiché.
+              </p>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <code className="text-xs truncate flex-1" style={{ color: '#ede8e1', background: '#0e0e0f', padding: '6px 8px', borderRadius: '6px' }}>
+                  {window.location.origin}/c/{convToken}
+                </code>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/c/${convToken}`)
+                  }}
+                  className="ws-press px-3 py-1.5 rounded-lg text-xs"
+                  style={{ background: '#2a2a2c', color: '#c8aa82' }}
+                >
+                  Copier
+                </button>
+              </div>
+              <button
+                onClick={() => navigate(`/c/${convToken}`)}
+                className="ws-press w-full py-2.5 rounded-lg text-sm"
+                style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82', border: '1px solid rgba(200,170,130,0.2)' }}
+              >
+                Accéder à la conversation
+              </button>
+            </div>
+          )}
+
           <button
             id="send-another-btn"
-            onClick={() => { setMessage(''); setSent(false) }}
-            className="ws-press mt-8 text-sm underline underline-offset-4"
+            onClick={() => { setMessage(''); setSent(false); setConvToken(null) }}
+            className="ws-press mt-4 text-sm underline underline-offset-4"
             style={{ color: '#c8aa82', fontFamily: "'Inter', sans-serif" }}
           >
             Envoyer un autre message
@@ -197,23 +238,48 @@ export function SendPage() {
           </span>
         </div>
 
-        {/* Send button */}
-        <button
-          id="send-btn"
-          onClick={handleSend}
-          disabled={!message.trim() || sending}
-          className="ws-press w-full py-3 rounded-xl flex items-center justify-center gap-2"
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 500,
-            background: message.trim() && !sending ? '#c8aa82' : '#1e1e20',
-            color: message.trim() && !sending ? '#0e0e0f' : '#4a4540',
-            cursor: message.trim() && !sending ? 'pointer' : 'not-allowed',
-          }}
-        >
-          <Send size={15} />
-          {sending ? 'Sending...' : 'Send anonymously'}
-        </button>
+        {/* Send buttons */}
+        <div className="flex flex-col gap-3">
+          <button
+            id="send-btn"
+            onClick={() => handleSend(false)}
+            disabled={!message.trim() || sending}
+            className="ws-press w-full py-3 rounded-xl flex items-center justify-center gap-2"
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
+              background: message.trim() && !sending ? '#c8aa82' : '#1e1e20',
+              color: message.trim() && !sending ? '#0e0e0f' : '#4a4540',
+              cursor: message.trim() && !sending ? 'pointer' : 'not-allowed',
+            }}
+          >
+            <Send size={15} />
+            {sending ? 'Sending...' : 'Send anonymously'}
+          </button>
+          
+          <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}></div>
+            <span className="flex-shrink-0 mx-4 text-xs" style={{ color: '#7a756d' }}>Ou bien</span>
+            <div className="flex-grow border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}></div>
+          </div>
+
+          <button
+            id="send-conv-btn"
+            onClick={() => handleSend(true)}
+            disabled={!message.trim() || sending}
+            className="ws-press w-full py-3 rounded-xl flex items-center justify-center gap-2 border"
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
+              background: message.trim() && !sending ? 'rgba(200,170,130,0.08)' : 'transparent',
+              color: message.trim() && !sending ? '#c8aa82' : '#4a4540',
+              borderColor: message.trim() && !sending ? 'rgba(200,170,130,0.2)' : 'rgba(255,255,255,0.06)',
+              cursor: message.trim() && !sending ? 'pointer' : 'not-allowed',
+            }}
+          >
+            Démarrer une conversation anonyme
+          </button>
+        </div>
 
         {/* Privacy note */}
         <div className="flex items-center justify-center gap-1.5 mt-6">
