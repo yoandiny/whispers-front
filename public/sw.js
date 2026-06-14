@@ -21,16 +21,23 @@ self.addEventListener('push', (event) => {
   const data   = payload.data  || {}
   const url    = data.url || '/home'
 
-  // Vibration pattern: message = double pulse, admin = single long
-  const vibrate = type === 'message' ? [100, 50, 100] : [200]
+  // Vibration pattern: anon_reply = double pulse, message = double pulse, admin = single long
+  const vibrate =
+    type === 'anon_reply' ? [100, 50, 100] :
+    type === 'message'    ? [100, 50, 100] :
+    [200]
 
   // Actions shown in the notification (where supported)
-  const actions = type === 'message'
-    ? [{ action: 'open_inbox', title: '📬 Voir la boîte' }]
-    : [{ action: 'open_home',  title: '🏠 Ouvrir Whispers' }]
+  const actions =
+    type === 'anon_reply' ? [{ action: 'open_conv',  title: '💬 Voir la réponse' }] :
+    type === 'message'    ? [{ action: 'open_inbox', title: '📬 Voir la boîte' }]   :
+                            [{ action: 'open_home',  title: '🏠 Ouvrir Whispers' }]
 
-  // Group messages together; admin notifications stack separately
-  const tag = type === 'message' ? 'whispers-messages' : `whispers-admin-${data.notificationId || Date.now()}`
+  // Each anon conversation gets its own tag so notifications don't collapse together
+  const tag =
+    type === 'anon_reply' ? `whispers-anon-${data.url || Date.now()}` :
+    type === 'message'    ? 'whispers-messages' :
+    `whispers-admin-${data.notificationId || Date.now()}`
 
   const options = {
     body,
@@ -47,6 +54,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(title, options))
 })
 
+
 // ─── Notification click ───────────────────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
@@ -57,12 +65,13 @@ self.addEventListener('notificationclick', (event) => {
   // Override URL based on action button pressed
   if (event.action === 'open_inbox') targetUrl = '/inbox'
   if (event.action === 'open_home')  targetUrl = '/home'
+  if (event.action === 'open_conv')  targetUrl = notifData.url || '/home'
 
   event.waitUntil(
     self.clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {
-        // Try to focus an already-open tab
+        // Try to reuse an already-open tab by navigating it to the target URL
         for (const client of clientList) {
           if ('focus' in client) {
             if ('navigate' in client) client.navigate(targetUrl)
@@ -74,6 +83,7 @@ self.addEventListener('notificationclick', (event) => {
       })
   )
 })
+
 
 // ─── Notification close (analytics hook, optional) ────────────────────────────
 self.addEventListener('notificationclose', (_event) => {

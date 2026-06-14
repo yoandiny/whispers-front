@@ -97,35 +97,55 @@ export function NotificationBell() {
   const showEnablePush = isPushSupported() && permission !== 'granted'
 
   return (
-    <div className="relative" ref={panelRef}>
+    <div style={{ position: 'relative', isolation: 'isolate' }} ref={panelRef}>
       {/* Bell button */}
       <button
         id="notif-bell-btn"
         onClick={() => setOpen((v) => !v)}
         aria-label="Notifications"
         aria-expanded={open}
-        className="ws-press relative w-10 h-10 flex items-center justify-center rounded-xl"
+        className="ws-press"
         style={{
-          background: open ? 'rgba(200,170,130,0.12)' : '#161618',
-          border: `1px solid ${open ? 'rgba(200,170,130,0.25)' : 'rgba(255,255,255,0.06)'}`,
+          position: 'relative',
+          width: '40px',
+          height: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '12px',
+          background: open ? 'rgba(200,170,130,0.15)' : '#1a1a1c',
+          border: `1px solid ${open ? 'rgba(200,170,130,0.3)' : 'rgba(255,255,255,0.08)'}`,
           color: '#c8aa82',
           transition: 'background 0.15s, border-color 0.15s',
+          flexShrink: 0,
         }}
         title="Notifications"
       >
         {unreadCount > 0 ? (
-          <BellRing size={18} style={{ animation: 'bell-ring 0.6s ease' }} />
+          <BellRing size={18} style={{ animation: 'bell-ring 0.6s ease', color: '#c8aa82' }} />
         ) : (
-          <Bell size={18} />
+          <Bell size={18} style={{ color: '#c8aa82' }} />
         )}
         {unreadCount > 0 && (
           <span
-            className="absolute -top-1 -right-1 text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center"
             style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              fontSize: '10px',
+              minWidth: '18px',
+              height: '18px',
+              paddingLeft: '4px',
+              paddingRight: '4px',
+              borderRadius: '9999px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               background: '#c8aa82',
               color: '#0e0e0f',
               fontWeight: 700,
               boxShadow: '0 0 0 2px #0e0e0f',
+              lineHeight: 1,
             }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -136,11 +156,19 @@ export function NotificationBell() {
       {/* Dropdown panel */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-[340px] max-w-[92vw] rounded-2xl overflow-hidden z-50 animate-fade-up"
+          className="animate-fade-up"
           style={{
+            position: 'absolute',
+            right: 0,
+            top: 'calc(100% + 8px)',
+            width: '340px',
+            maxWidth: '92vw',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            zIndex: 9999,
             background: '#131315',
-            border: '1px solid rgba(255,255,255,0.09)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)',
           }}
         >
           {/* Header */}

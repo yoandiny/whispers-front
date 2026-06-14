@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Send, ArrowLeft } from 'lucide-react'
+import { Send, ArrowLeft, Bell, BellOff } from 'lucide-react'
 import api from '@/lib/api'
 import { useConvSSE } from '@/hooks/useConvSSE'
 import { LoadingScreen } from '@/components/shared/LoadingScreen'
@@ -19,17 +19,66 @@ interface Conversation {
   messages: Message[]
 }
 
+// ─── Push helper (no auth needed) ────────────────────────────────────────────
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i)
+  return outputArray
+}
+
+type PushState = 'idle' | 'subscribing' | 'subscribed' | 'denied' | 'unsupported' | 'error'
+
+async function subscribeAnonPush(token: string): Promise<PushState> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+    return 'unsupported'
+  }
+  try {
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') return 'denied'
+
+    let reg = await navigator.serviceWorker.getRegistration('/sw.js')
+    if (!reg) reg = await navigator.serviceWorker.register('/sw.js')
+    await navigator.serviceWorker.ready
+
+    const { data } = await api.get('/api/notifications/vapid-public-key')
+    const publicKey: string | null = data?.data?.publicKey
+    if (!publicKey) return 'error'
+
+    const existing = await reg.pushManager.getSubscription()
+    const subscription =
+      existing ??
+      (await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      }))
+
+    await api.post(`/api/conversations/token/${token}/subscribe-push`, { subscription })
+    return 'subscribed'
+  } catch {
+    return 'error'
+  }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export function AnonConvPage() {
   const { token } = useParams<{ token: string }>()
   const navigate = useNavigate()
-  
+
   const [conv, setConv] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  
+
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const [pushState, setPushState] = useState<PushState>('idle')
+  const pushAttempted = useRef(false)
 
   useEffect(() => {
     if (!token) {
@@ -48,10 +97,41 @@ export function AnonConvPage() {
       })
   }, [token, navigate])
 
+  // Auto-subscribe to push once the conversation loads
+  useEffect(() => {
+    if (!conv || !token || pushAttempted.current) return
+    pushAttempted.current = true
+
+    // Only auto-prompt if not already denied
+    if (!('Notification' in window) || Notification.permission === 'denied') {
+      setPushState('denied')
+      return
+    }
+    if (!('PushManager' in window)) {
+      setPushState('unsupported')
+      return
+    }
+
+    // If already granted, subscribe silently; otherwise prompt via the bell button
+    if (Notification.permission === 'granted') {
+      setPushState('subscribing')
+      subscribeAnonPush(token).then(setPushState)
+    } else {
+      // Leave in 'idle' so the user can click the bell to enable
+      setPushState('idle')
+    }
+  }, [conv, token])
+
+  async function handleEnablePush() {
+    if (!token || pushState === 'subscribing' || pushState === 'subscribed') return
+    setPushState('subscribing')
+    const result = await subscribeAnonPush(token)
+    setPushState(result)
+  }
+
   const handleNewMessage = useCallback((msg: Message) => {
     setConv(prev => {
       if (!prev) return prev
-      // Prevent duplicates if we already added it optimistically
       if (prev.messages.some(m => m.id === msg.id)) return prev
       return { ...prev, messages: [...prev.messages, msg] }
     })
@@ -70,7 +150,7 @@ export function AnonConvPage() {
       const res = await api.post(`/api/conversations/token/${token}/messages`, { text: text.trim() })
       handleNewMessage(res.data.data)
       setText('')
-    } catch (err) {
+    } catch {
       alert("Erreur lors de l'envoi du message")
     } finally {
       setSending(false)
@@ -89,6 +169,16 @@ export function AnonConvPage() {
     )
   }
 
+  // Bell button state display
+  const bellLabel =
+    pushState === 'subscribed' ? 'Notifications activées ✓' :
+    pushState === 'subscribing' ? 'Activation...' :
+    pushState === 'denied' ? 'Notifications refusées' :
+    pushState === 'unsupported' ? 'Push non supporté' :
+    'Recevoir une notif si réponse'
+
+  const bellActive = pushState === 'subscribed'
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
@@ -96,11 +186,51 @@ export function AnonConvPage() {
         <button onClick={() => navigate('/')} className="p-2 -ml-2 text-[#7a756d] hover:text-[#ede8e1]">
           <ArrowLeft size={20} />
         </button>
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#ede8e1', lineHeight: 1 }}>Conversation anonyme</h1>
           <span className="text-xs text-[#7a756d]">Ton identité est masquée</span>
         </div>
+        {/* Push notification bell */}
+        {pushState !== 'unsupported' && (
+          <button
+            onClick={handleEnablePush}
+            disabled={bellActive || pushState === 'subscribing' || pushState === 'denied'}
+            title={bellLabel}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              border: `1px solid ${bellActive ? 'rgba(200,170,130,0.3)' : 'rgba(255,255,255,0.08)'}`,
+              background: bellActive ? 'rgba(200,170,130,0.12)' : '#1a1a1c',
+              color: bellActive ? '#c8aa82' : pushState === 'denied' ? '#4a4540' : '#7a756d',
+              flexShrink: 0,
+              transition: 'all 0.15s',
+              cursor: bellActive || pushState === 'denied' ? 'default' : 'pointer',
+            }}
+          >
+            {pushState === 'denied' ? <BellOff size={16} /> : <Bell size={16} />}
+          </button>
+        )}
       </div>
+
+      {/* Push CTA banner (only if idle — permission not yet asked) */}
+      {pushState === 'idle' && (
+        <button
+          onClick={handleEnablePush}
+          className="w-full flex items-center gap-2 px-5 py-2.5 text-xs"
+          style={{
+            background: 'rgba(200,170,130,0.07)',
+            borderBottom: '1px solid rgba(200,170,130,0.12)',
+            color: '#c8aa82',
+          }}
+        >
+          <Bell size={13} />
+          🔔 Active les notifications pour être alerté(e) si on te répond
+        </button>
+      )}
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
@@ -108,7 +238,7 @@ export function AnonConvPage() {
           const isAnon = m.sender === 'anon'
           return (
             <div key={m.id || i} className={`flex ${isAnon ? 'justify-end' : 'justify-start'}`}>
-              <div 
+              <div
                 className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm"
                 style={{
                   background: isAnon ? '#c8aa82' : '#1e1e20',
