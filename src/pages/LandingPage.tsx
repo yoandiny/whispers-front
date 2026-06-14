@@ -9,7 +9,7 @@ import { LoadingScreen } from '@/components/shared/LoadingScreen'
 export function LandingPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -77,10 +77,12 @@ export function LandingPage() {
           className="mb-2"
           style={{ fontFamily: "'Instrument Serif', serif", fontSize: '2.4rem', color: '#ede8e1', lineHeight: 1.1 }}
         >
-          Whispers
+          {isLogin ? 'Bon retour' : 'Créer un compte'}
         </h1>
         <p className="mb-10 text-sm" style={{ color: '#7a756d', lineHeight: 1.7 }}>
-          Receive anonymous messages from anyone. Honest. Human. Private.
+          {isLogin
+            ? 'Connecte-toi pour retrouver tes messages anonymes.'
+            : 'Crée ton compte et commence à recevoir des messages anonymes.'}
         </p>
 
         {/* Form */}
@@ -147,6 +149,12 @@ export function LandingPage() {
             {isLoading ? 'Patientez...' : (isLogin ? 'Se connecter' : 'S\'inscrire')}
             {!isLoading && <ArrowRight size={15} />}
           </button>
+
+          {!isLogin && (
+            <p className="text-xs mt-1" style={{ color: '#5a554e', lineHeight: 1.6 }}>
+              Le mot de passe doit contenir au moins 4 caractères.
+            </p>
+          )}
         </form>
 
         <button 
