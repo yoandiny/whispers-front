@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Share2, ChevronRight, MessageCircle, Trash2, Copy, Check, LogOut, Image as ImageIcon } from 'lucide-react'
+import { Share2, ChevronRight, MessageCircle, Trash2, Copy, Check, LogOut, Image as ImageIcon, List, LayoutGrid } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useMessages } from '@/hooks/useMessages'
 import { BottomNav } from '@/components/shared/BottomNav'
+import { MessageCarousel } from '@/components/shared/MessageCarousel'
 import { generateStoryImage, shareImage } from '@/lib/share'
 import { useAuth } from '@/context/AuthContext'
 import type { Message } from '@/types'
+
+type ViewMode = 'list' | 'cards'
 
 function timeAgo(date: Date): string {
   const diff = (Date.now() - date.getTime()) / 1000
@@ -23,10 +26,32 @@ export function InboxPage() {
   const [copied, setCopied] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
 
-  const { messages, unreadCount, deleteMessage } = useMessages()
+  const { messages, unreadCount, deleteMessage, markAsRead } = useMessages()
   const [sharingId, setSharingId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    () => (localStorage.getItem('whispers_inbox_view') as ViewMode) ?? 'list'
+  )
 
   const shareUrl = `${window.location.origin}/${username}`
+
+  function changeView(mode: ViewMode) {
+    setViewMode(mode)
+    localStorage.setItem('whispers_inbox_view', mode)
+  }
+
+  // Mark a message as "already seen" the first time it is opened/viewed
+  const markRead = useCallback(
+    (msg: Message) => {
+      if (!msg.read) markAsRead(msg.id)
+    },
+    [markAsRead]
+  )
+
+  function toggleExpand(msg: Message) {
+    const next = expanded === msg.id ? null : msg.id
+    setExpanded(next)
+    if (next) markRead(msg)
+  }
 
   function copyLink() {
     navigator.clipboard.writeText(shareUrl)
@@ -142,9 +167,41 @@ export function InboxPage() {
               </span>
             )}
           </div>
-          <span className="text-xs" style={{ color: '#4a4540' }}>
-            {messages.length} total
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs" style={{ color: '#4a4540' }}>
+              {messages.length} total
+            </span>
+            {/* View toggle */}
+            <div
+              className="flex items-center rounded-lg overflow-hidden"
+              style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              <button
+                id="view-list-btn"
+                onClick={() => changeView('list')}
+                className="ws-press w-7 h-7 flex items-center justify-center"
+                style={{
+                  background: viewMode === 'list' ? 'rgba(200,170,130,0.15)' : 'transparent',
+                  color: viewMode === 'list' ? '#c8aa82' : '#7a756d',
+                }}
+                title="Vue liste"
+              >
+                <List size={14} />
+              </button>
+              <button
+                id="view-cards-btn"
+                onClick={() => changeView('cards')}
+                className="ws-press w-7 h-7 flex items-center justify-center"
+                style={{
+                  background: viewMode === 'cards' ? 'rgba(200,170,130,0.15)' : 'transparent',
+                  color: viewMode === 'cards' ? '#c8aa82' : '#7a756d',
+                }}
+                title="Vue cards"
+              >
+                <LayoutGrid size={14} />
+              </button>
+            </div>
+          </div>
         </div>
 
         {messages.length === 0 ? (
@@ -157,6 +214,14 @@ export function InboxPage() {
               Share your link to start receiving messages
             </p>
           </div>
+        ) : viewMode === 'cards' ? (
+          <MessageCarousel
+            messages={messages}
+            sharingId={sharingId}
+            onShare={shareMessageAsStory}
+            onDelete={deleteMessage}
+            onActive={markRead}
+          />
         ) : (
           <div className="flex flex-col gap-2">
             {messages.map((msg: Message, i: number) => (
@@ -171,7 +236,7 @@ export function InboxPage() {
                       ? '1px solid rgba(200,170,130,0.15)'
                       : '1px solid rgba(255,255,255,0.05)',
                 }}
-                onClick={() => setExpanded(expanded === msg.id ? null : msg.id)}
+                onClick={() => toggleExpand(msg)}
               >
                 <div className="px-4 py-3.5 flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">

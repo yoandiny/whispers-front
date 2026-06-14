@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Home, MessageCircle, User } from 'lucide-react'
+import { Home, MessageCircle, User, Shield } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 interface NavItem {
   to: string
@@ -7,11 +8,13 @@ interface NavItem {
   icon: typeof Home
 }
 
-const ITEMS: NavItem[] = [
+const BASE_ITEMS: NavItem[] = [
   { to: '/home', label: 'Accueil', icon: Home },
   { to: '/inbox', label: 'Messages', icon: MessageCircle },
   { to: '/profile', label: 'Profil', icon: User },
 ]
+
+const ADMIN_ITEM: NavItem = { to: '/admin', label: 'Admin', icon: Shield }
 
 interface BottomNavProps {
   /** Optional badge count shown on the Messages tab */
@@ -21,6 +24,10 @@ interface BottomNavProps {
 export function BottomNav({ unreadCount = 0 }: BottomNavProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { isAdmin } = useAuth()
+
+  // Activate the admin entry only when the authenticated role is admin
+  const items = isAdmin ? [...BASE_ITEMS, ADMIN_ITEM] : BASE_ITEMS
 
   return (
     <div
@@ -33,14 +40,14 @@ export function BottomNav({ unreadCount = 0 }: BottomNavProps) {
       }}
     >
       <div className="max-w-md mx-auto flex items-center justify-around">
-        {ITEMS.map(({ to, label, icon: Icon }) => {
+        {items.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to
           return (
             <button
               key={to}
               id={`nav-${label.toLowerCase()}`}
               onClick={() => navigate(to)}
-              className="relative flex flex-col items-center gap-1 px-6 py-1.5 transition-all"
+              className="ws-press relative flex flex-col items-center gap-1 px-5 py-1.5"
               style={{ color: active ? '#c8aa82' : '#7a756d' }}
             >
               <div className="relative">
