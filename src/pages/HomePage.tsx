@@ -4,6 +4,7 @@ import { Share2, Copy, Check, MessageCircle, Eye, Inbox } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useMessages } from '@/hooks/useMessages'
 import { BottomNav } from '@/components/shared/BottomNav'
+import { NotificationBell } from '@/components/shared/NotificationBell'
 import { shareLink } from '@/lib/share'
 import { useAuth } from '@/context/AuthContext'
 
@@ -36,13 +37,16 @@ export function HomePage() {
   return (
     <div className="min-h-screen pb-28" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
-      <div className="px-5 pt-10 pb-2 animate-fade-up">
-        <p className="text-sm" style={{ color: '#7a756d' }}>
-          Bienvenue,
-        </p>
-        <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '2rem', color: '#ede8e1', lineHeight: 1.1 }}>
-          @{username}
-        </h1>
+      <div className="px-5 pt-10 pb-2 flex items-start justify-between animate-fade-up">
+        <div>
+          <p className="text-sm" style={{ color: '#7a756d' }}>
+            Bienvenue,
+          </p>
+          <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '2rem', color: '#ede8e1', lineHeight: 1.1 }}>
+            @{username}
+          </h1>
+        </div>
+        <NotificationBell />
       </div>
 
       {/* Share card */}

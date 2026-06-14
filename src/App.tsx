@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/context/AuthContext'
+import { NotificationProvider } from '@/context/NotificationContext'
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 import { LandingPage } from '@/pages/LandingPage'
 import { SendPage } from '@/pages/SendPage'
@@ -13,6 +14,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+      <NotificationProvider>
       <Toaster
         position="top-center"
         toastOptions={{
@@ -71,6 +73,7 @@ export default function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   )

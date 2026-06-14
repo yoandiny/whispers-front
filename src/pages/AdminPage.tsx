@@ -9,12 +9,14 @@ import {
   ArrowLeft,
   Shield,
   ChevronRight,
+  Bell,
+  Send,
 } from 'lucide-react'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
 
-type Tab = 'dashboard' | 'users' | 'messages'
+type Tab = 'dashboard' | 'users' | 'messages' | 'notifications'
 
 interface Stats {
   totalUsers: number
@@ -23,6 +25,7 @@ interface Stats {
   unreadMessages: number
   newUsers7d: number
   newMessages7d: number
+  pushSubscriptions: number
 }
 
 interface AdminUser {
@@ -58,6 +61,13 @@ export function AdminPage() {
   const [messages, setMessages] = useState<AdminMessage[]>([])
   const [profile, setProfile] = useState<UserProfile | null>(null)
 
+  // ─── Notification composer state ─────────────────────────────
+  const [notifTarget, setNotifTarget] = useState<'all' | 'user'>('all')
+  const [notifUserId, setNotifUserId] = useState('')
+  const [notifTitle, setNotifTitle] = useState('')
+  const [notifBody, setNotifBody] = useState('')
+  const [sendingNotif, setSendingNotif] = useState(false)
+
   const loadDashboard = useCallback(async () => {
     try {
       const res = await api.get('/api/admin/dashboard')
@@ -89,7 +99,34 @@ export function AdminPage() {
     if (tab === 'dashboard') loadDashboard()
     if (tab === 'users') loadUsers()
     if (tab === 'messages') loadMessages()
+    if (tab === 'notifications') loadUsers()
   }, [tab, loadDashboard, loadUsers, loadMessages])
+
+  async function sendNotification() {
+    if (!notifTitle.trim() || !notifBody.trim()) {
+      toast.error('Titre et message requis')
+      return
+    }
+    if (notifTarget === 'user' && !notifUserId) {
+      toast.error('Sélectionne un utilisateur')
+      return
+    }
+    setSendingNotif(true)
+    try {
+      const res = await api.post('/api/admin/notifications', {
+        target: notifTarget === 'all' ? 'all' : notifUserId,
+        title: notifTitle.trim(),
+        body: notifBody.trim(),
+      })
+      toast.success(res.data.message || 'Notification envoyée')
+      setNotifTitle('')
+      setNotifBody('')
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Envoi impossible")
+    } finally {
+      setSendingNotif(false)
+    }
+  }
 
   async function openProfile(id: string) {
     try {
@@ -121,6 +158,7 @@ export function AdminPage() {
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'users', label: 'Comptes', icon: Users },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
   ]
 
   return (
@@ -159,7 +197,7 @@ export function AdminPage() {
       </div>
 
       {/* Tab switcher */}
-      <div className="px-5 pt-4 flex gap-2">
+      <div className="px-5 pt-4 flex gap-2 flex-wrap">
         {TABS.map(({ id, label, icon: Icon }) => {
           const active = tab === id
           return (
@@ -192,6 +230,7 @@ export function AdminPage() {
             <StatCard label="Non lus" value={stats.unreadMessages} />
             <StatCard label="Nouveaux comptes (7j)" value={stats.newUsers7d} />
             <StatCard label="Nouveaux messages (7j)" value={stats.newMessages7d} />
+            <StatCard label="Abonnés push" value={stats.pushSubscriptions} highlight />
           </div>
         )}
 
@@ -232,6 +271,124 @@ export function AdminPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Notification composer */}
+        {tab === 'notifications' && (
+          <div className="flex flex-col gap-4 animate-fade-up">
+            {/* Info banner */}
+            <div
+              className="rounded-xl px-4 py-3 flex items-start gap-3"
+              style={{ background: 'rgba(200,170,130,0.06)', border: '1px solid rgba(200,170,130,0.12)' }}
+            >
+              <Bell size={15} style={{ color: '#c8aa82', marginTop: 2, flexShrink: 0 }} />
+              <p className="text-xs leading-relaxed" style={{ color: '#7a756d' }}>
+                Envoie une notification personnalisée <strong style={{ color: '#c8aa82' }}>in-app</strong> et{' '}
+                <strong style={{ color: '#c8aa82' }}>web-push</strong> — à tous les utilisateurs ou à un compte précis.
+                Les notifications push ne sont envoyées qu'aux appareils ayant activé l'autorisation.
+              </p>
+            </div>
+
+            {/* Target toggle */}
+            <div>
+              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Destinataire</p>
+              <div className="flex gap-2">
+                {([
+                  { id: 'all', label: '📣 Tout le monde' },
+                  { id: 'user', label: '🎯 Utilisateur ciblé' },
+                ] as const).map((opt) => {
+                  const active = notifTarget === opt.id
+                  return (
+                    <button
+                      key={opt.id}
+                      id={`admin-notif-target-${opt.id}`}
+                      onClick={() => setNotifTarget(opt.id)}
+                      className="ws-press flex-1 py-2.5 rounded-xl text-sm"
+                      style={{
+                        background: active ? 'rgba(200,170,130,0.12)' : '#161618',
+                        color: active ? '#c8aa82' : '#7a756d',
+                        border: active ? '1px solid rgba(200,170,130,0.2)' : '1px solid rgba(255,255,255,0.05)',
+                        fontWeight: active ? 600 : 400,
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {notifTarget === 'user' && (
+              <div>
+                <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Sélectionner un compte</p>
+                <select
+                  id="admin-notif-user"
+                  value={notifUserId}
+                  onChange={(e) => setNotifUserId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                  style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                >
+                  <option value="">Sélectionner un utilisateur…</option>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      @{u.username}{u.role === 'admin' ? ' (admin)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Titre</p>
+              <input
+                id="admin-notif-title"
+                type="text"
+                value={notifTitle}
+                onChange={(e) => setNotifTitle(e.target.value)}
+                placeholder="Ex: Maintenance programmée"
+                maxLength={120}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+              />
+              <p className="text-xs mt-1 text-right" style={{ color: '#3a3530' }}>{notifTitle.length}/120</p>
+            </div>
+
+            <div>
+              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Message</p>
+              <textarea
+                id="admin-notif-body"
+                value={notifBody}
+                onChange={(e) => setNotifBody(e.target.value)}
+                placeholder="Contenu de la notification…"
+                maxLength={300}
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
+                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+              />
+              <p className="text-xs mt-1 text-right" style={{ color: '#3a3530' }}>{notifBody.length}/300</p>
+            </div>
+
+            <button
+              id="admin-notif-send"
+              onClick={sendNotification}
+              disabled={sendingNotif || !notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId)}
+              className="ws-press w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm"
+              style={{
+                background: (!notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId))
+                  ? 'rgba(200,170,130,0.15)'
+                  : '#c8aa82',
+                color: (!notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId))
+                  ? '#6a5d48'
+                  : '#0e0e0f',
+                fontWeight: 500,
+                cursor: sendingNotif ? 'wait' : 'pointer',
+                transition: 'background 0.2s, color 0.2s',
+              }}
+            >
+              <Send size={15} />
+              {sendingNotif ? 'Envoi en cours...' : notifTarget === 'all' ? 'Envoyer à tous' : 'Envoyer à cet utilisateur'}
+            </button>
           </div>
         )}
 
@@ -336,11 +493,17 @@ export function AdminPage() {
   )
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className="ws-lift rounded-2xl p-4" style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: '#c8aa82' }}>{value}</p>
-      <p className="text-xs mt-1" style={{ color: '#7a756d' }}>
+    <div
+      className="ws-lift rounded-2xl p-4"
+      style={{
+        background: highlight ? 'rgba(200,170,130,0.07)' : '#161618',
+        border: highlight ? '1px solid rgba(200,170,130,0.18)' : '1px solid rgba(255,255,255,0.05)',
+      }}
+    >
+      <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: highlight ? '#c8aa82' : '#c8aa82' }}>{value}</p>
+      <p className="text-xs mt-1" style={{ color: highlight ? '#8a7a62' : '#7a756d' }}>
         {label}
       </p>
     </div>
