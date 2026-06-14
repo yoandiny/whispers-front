@@ -82,3 +82,35 @@ export function pushPermission(): NotificationPermission | 'unsupported' {
   if (!isPushSupported()) return 'unsupported'
   return Notification.permission
 }
+
+export type PushState = 'idle' | 'subscribing' | 'subscribed' | 'denied' | 'unsupported' | 'error'
+
+/** Subscribe to anonymous conversation notifications. */
+export async function subscribeAnonPush(token: string): Promise<PushState> {
+  if (!isPushSupported()) return 'unsupported'
+  try {
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') return 'denied'
+
+    await registerServiceWorker()
+    const reg = await navigator.serviceWorker.ready
+
+    const { data } = await api.get('/api/notifications/vapid-public-key')
+    const publicKey: string | null = data?.data?.publicKey
+    if (!publicKey) return 'error'
+
+    const existing = await reg.pushManager.getSubscription()
+    const subscription =
+      existing ??
+      (await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      }))
+
+    await api.post(`/api/conversations/token/${token}/subscribe-push`, { subscription })
+    return 'subscribed'
+  } catch {
+    return 'error'
+  }
+}
+

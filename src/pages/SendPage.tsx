@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Send, Lock } from 'lucide-react'
+import { Send, Lock, Bell, BellOff } from 'lucide-react'
 import api from '@/lib/api'
 import { BackButton } from '@/components/shared/BackButton'
 import { LoadingScreen } from '@/components/shared/LoadingScreen'
+import { subscribeAnonPush, type PushState } from '@/lib/push'
 
 const PROMPTS = [
   'What do you really think of me?',
@@ -24,6 +25,33 @@ export function SendPage() {
   const [recipientUsername, setRecipientUsername] = useState('')
   const [convToken, setConvToken] = useState<string | null>(null)
   const [activePrompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)])
+  const [pushState, setPushState] = useState<PushState>('idle')
+
+  useEffect(() => {
+    if (!convToken) {
+      setPushState('idle')
+      return
+    }
+    if (!('Notification' in window) || Notification.permission === 'denied') {
+      setPushState('denied')
+      return
+    }
+    if (!('PushManager' in window)) {
+      setPushState('unsupported')
+      return
+    }
+    if (Notification.permission === 'granted') {
+      setPushState('subscribing')
+      subscribeAnonPush(convToken).then(setPushState)
+    }
+  }, [convToken])
+
+  async function handleEnablePush() {
+    if (!convToken || pushState === 'subscribing' || pushState === 'subscribed') return
+    setPushState('subscribing')
+    const result = await subscribeAnonPush(convToken)
+    setPushState(result)
+  }
 
   useEffect(() => {
     if (!username) {
@@ -154,11 +182,33 @@ export function SendPage() {
               </div>
               <button
                 onClick={() => navigate(`/c/${convToken}`)}
-                className="ws-press w-full py-2.5 rounded-lg text-sm"
+                className="ws-press w-full py-2.5 rounded-lg text-sm mb-3"
                 style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82', border: '1px solid rgba(200,170,130,0.2)' }}
               >
                 Accéder à la conversation
               </button>
+
+              {pushState !== 'unsupported' && pushState !== 'subscribed' && (
+                <button
+                  onClick={handleEnablePush}
+                  disabled={pushState === 'subscribing' || pushState === 'denied'}
+                  className="ws-press w-full py-2.5 flex items-center justify-center gap-2 rounded-lg text-sm"
+                  style={{
+                    background: pushState === 'denied' ? 'rgba(255,255,255,0.05)' : '#c8aa82',
+                    color: pushState === 'denied' ? '#7a756d' : '#0e0e0f',
+                    cursor: pushState === 'denied' ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {pushState === 'denied' ? <BellOff size={16} /> : <Bell size={16} />}
+                  {pushState === 'subscribing' ? 'Activation...' : pushState === 'denied' ? 'Notifications refusées' : 'M\'alerter si on me répond'}
+                </button>
+              )}
+              {pushState === 'subscribed' && (
+                <div className="w-full py-2.5 flex items-center justify-center gap-2 rounded-lg text-sm" style={{ color: '#c8aa82', background: 'rgba(200,170,130,0.1)', border: '1px solid rgba(200,170,130,0.2)' }}>
+                  <Bell size={16} />
+                  Notifications activées ✓
+                </div>
+              )}
             </div>
           )}
 

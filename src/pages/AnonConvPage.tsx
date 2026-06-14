@@ -4,6 +4,7 @@ import { Send, ArrowLeft, Bell, BellOff } from 'lucide-react'
 import api from '@/lib/api'
 import { useConvSSE } from '@/hooks/useConvSSE'
 import { LoadingScreen } from '@/components/shared/LoadingScreen'
+import { subscribeAnonPush, type PushState } from '@/lib/push'
 
 interface Message {
   id: string
@@ -17,50 +18,6 @@ interface Conversation {
   recipient_id: string
   created_at: string
   messages: Message[]
-}
-
-// ─── Push helper (no auth needed) ────────────────────────────────────────────
-
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
-  const rawData = window.atob(base64)
-  const outputArray = new Uint8Array(rawData.length)
-  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i)
-  return outputArray
-}
-
-type PushState = 'idle' | 'subscribing' | 'subscribed' | 'denied' | 'unsupported' | 'error'
-
-async function subscribeAnonPush(token: string): Promise<PushState> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-    return 'unsupported'
-  }
-  try {
-    const permission = await Notification.requestPermission()
-    if (permission !== 'granted') return 'denied'
-
-    let reg = await navigator.serviceWorker.getRegistration('/sw.js')
-    if (!reg) reg = await navigator.serviceWorker.register('/sw.js')
-    await navigator.serviceWorker.ready
-
-    const { data } = await api.get('/api/notifications/vapid-public-key')
-    const publicKey: string | null = data?.data?.publicKey
-    if (!publicKey) return 'error'
-
-    const existing = await reg.pushManager.getSubscription()
-    const subscription =
-      existing ??
-      (await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
-      }))
-
-    await api.post(`/api/conversations/token/${token}/subscribe-push`, { subscription })
-    return 'subscribed'
-  } catch {
-    return 'error'
-  }
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
