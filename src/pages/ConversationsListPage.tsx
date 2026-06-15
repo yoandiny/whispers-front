@@ -8,6 +8,7 @@ import { useMessages } from '@/hooks/useMessages'
 
 interface ConvListItem {
   id: string
+  anonName: string
   createdAt: string
   unreadCount: number
   lastMessage: { content: string; sender: string; createdAt: string } | null
@@ -69,7 +70,7 @@ export function ConversationsListPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-[#ede8e1]">Anonyme</span>
+                    <span className="text-sm font-medium text-[#ede8e1]">{c.anonName}</span>
                     <span className="text-xs text-[#7a756d]">
                       {timeAgo(c.lastMessage?.createdAt || c.createdAt)}
                     </span>

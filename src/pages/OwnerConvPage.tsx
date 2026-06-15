@@ -15,6 +15,7 @@ interface Message {
 interface Conversation {
   id: string
   recipient_id: string
+  anonName: string
   created_at: string
   messages: Message[]
 }
@@ -99,7 +100,7 @@ export function OwnerConvPage() {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#ede8e1', lineHeight: 1 }}>Anonyme</h1>
+          <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#ede8e1', lineHeight: 1 }}>{conv.anonName}</h1>
         </div>
       </div>
 
