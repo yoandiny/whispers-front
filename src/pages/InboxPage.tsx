@@ -293,14 +293,14 @@ export function InboxPage() {
                       <p
                         style={{
                           color: BROWN,
-                          fontFamily: expanded === msg.id ? 'var(--font-cursive)' : 'var(--font-sans)',
-                          fontSize: expanded === msg.id ? '1.45rem' : '0.92rem',
-                          lineHeight: expanded === msg.id ? 1.4 : 1.5,
+                          fontFamily: 'var(--font-sans)',
+                          fontSize: '0.92rem',
+                          lineHeight: 1.5,
                           display: expanded === msg.id ? 'block' : '-webkit-box',
                           WebkitLineClamp: expanded === msg.id ? undefined : 2,
                           WebkitBoxOrient: 'vertical' as const,
                           overflow: expanded === msg.id ? 'visible' : 'hidden',
-                          transition: 'font-size 0.2s, font-family 0.2s',
+                          transition: 'font-size 0.2s',
                         }}
                       >
                         "{msg.text}"

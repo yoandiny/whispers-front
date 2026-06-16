@@ -92,8 +92,8 @@ export function OwnerConvPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG }}>
         <BackgroundBlobs />
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: '1.8rem', color: BROWN, fontWeight: 700 }}>Conversation introuvable</h2>
-        <button onClick={() => navigate('/conversations')} className="btn-explosive mt-6 px-4 py-2 bg-[#FFF8F5] text-red-600 border border-red-200 rounded-lg">Retour</button>
+        <h2 style={{ fontFamily: "var(--font-gothic)", fontSize: '1.6rem', color: BROWN }}>Conversation introuvable</h2>
+        <button onClick={() => navigate('/conversations')} className="btn-explosive mt-6 px-4 py-2 bg-[#FFF8F5] text-red-600 border border-red-200 rounded-lg" style={{ fontFamily: 'var(--font-tech)', fontWeight: 700 }}>Retour</button>
       </div>
     )
   }
@@ -124,9 +124,10 @@ export function OwnerConvPage() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 style={{ fontFamily: "var(--font-cursive)", fontSize: '1.65rem', color: BROWN, fontWeight: 700, lineHeight: 1.1 }}>
+            <h1 style={{ fontFamily: "var(--font-gothic)", fontSize: '1.25rem', color: BROWN, lineHeight: 1.1 }}>
               {conv.anonName}
             </h1>
+            <span style={{ fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.62rem', color: '#8A6B5E' }}>Conversation anonyme</span>
           </div>
         </div>
 
@@ -145,9 +146,9 @@ export function OwnerConvPage() {
                     boxShadow: isOwner ? '0 4px 12px rgba(192, 57, 43, 0.15)' : '0 2px 8px rgba(44, 26, 19, 0.03)',
                     borderBottomRightRadius: isOwner ? '4px' : '16px',
                     borderBottomLeftRadius: isOwner ? '16px' : '4px',
-                    fontFamily: isOwner ? 'var(--font-sans)' : 'var(--font-cursive)',
-                    fontSize: isOwner ? '0.9rem' : '1.25rem',
-                    lineHeight: isOwner ? '1.4' : '1.3',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.92rem',
+                    lineHeight: '1.45',
                   }}
                 >
                   {m.content}

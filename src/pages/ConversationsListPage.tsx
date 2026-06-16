@@ -102,7 +102,7 @@ export function ConversationsListPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-sm" style={{ color: BROWN, fontFamily: 'var(--font-cursive)', fontSize: '1.25rem', fontWeight: 700 }}>{c.anonName}</span>
+                    <span className="text-sm font-semibold" style={{ color: BROWN, fontFamily: 'var(--font-sans)', fontSize: '0.95rem' }}>{c.anonName}</span>
                     <span className="text-xs" style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>
                       {timeAgo(c.lastMessage?.createdAt || c.createdAt)}
                     </span>

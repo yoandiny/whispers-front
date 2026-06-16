@@ -93,13 +93,12 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
               {/* Message — Caveat pour l'écriture manuscrite */}
               <div className="flex-1 flex items-center justify-center px-2">
                 <p
-                  className="text-center"
+                  className="text-center font-medium"
                   style={{
-                    fontFamily: 'var(--font-cursive)',
+                    fontFamily: 'var(--font-sans)',
                     color: '#2C1A13',
-                    fontSize: msg.text.length > 140 ? '1.6rem' : '2.1rem',
-                    lineHeight: 1.35,
-                    transform: 'rotate(-0.5deg)',
+                    fontSize: msg.text.length > 140 ? '0.95rem' : '1.15rem',
+                    lineHeight: 1.5,
                   }}
                 >
                   "{msg.text}"

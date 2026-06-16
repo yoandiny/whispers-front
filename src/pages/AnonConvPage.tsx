@@ -104,7 +104,7 @@ export function AnonConvPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG }}>
         <BackgroundBlobs />
-        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: BROWN, fontWeight: 700 }}>Conversation introuvable</h2>
+        <h2 style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.6rem', color: BROWN }}>Conversation introuvable</h2>
         <p className="mt-2 text-sm text-[#8A6B5E]" style={{ fontFamily: 'var(--font-sans)' }}>Ce lien est invalide ou expiré.</p>
         <button
           onClick={() => navigate('/')}
@@ -206,9 +206,9 @@ export function AnonConvPage() {
                   boxShadow: isAnon ? '0 4px 12px rgba(192,57,43,0.2)' : '0 2px 8px rgba(44,26,19,0.04)',
                   borderBottomRightRadius: isAnon ? '4px' : '16px',
                   borderBottomLeftRadius: isAnon ? '16px' : '4px',
-                  fontFamily: isAnon ? 'var(--font-cursive)' : 'var(--font-sans)',
-                  fontSize: isAnon ? '1.25rem' : '0.9rem',
-                  lineHeight: isAnon ? 1.3 : 1.4,
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.92rem',
+                  lineHeight: 1.45,
                 }}
               >
                 {m.content}
