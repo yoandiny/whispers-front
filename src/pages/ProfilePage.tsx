@@ -15,7 +15,6 @@ import {
 import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
 
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -102,7 +101,7 @@ export function ProfilePage() {
   if (!username) return null
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: BG, fontFamily: FONT_SANS }}>
+    <div className="min-h-screen pb-28" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
       <BackgroundBlobs />
       {/* Texture grain */}
       <div
@@ -187,7 +186,7 @@ export function ProfilePage() {
               id="profile-push-btn"
               onClick={togglePush}
               disabled={pushLoading || pushState === 'denied'}
-              className="ws-press rounded-2xl px-4 py-4 flex items-center gap-3"
+              className="btn-explosive rounded-2xl px-4 py-4 flex items-center gap-3"
               style={{
                 background: pushState === 'enabled' ? 'rgba(192,57,43,0.06)' : pushState === 'denied' ? 'rgba(44,26,19,0.04)' : '#FFF8F5',
                 border: pushState === 'enabled' ? '1px solid rgba(192,57,43,0.18)' : '1px solid rgba(44,26,19,0.06)',
@@ -243,7 +242,7 @@ export function ProfilePage() {
             <button
               id="profile-admin-btn"
               onClick={() => navigate('/admin')}
-              className="ws-press rounded-2xl px-4 py-4 flex items-center gap-3 mt-4"
+              className="btn-explosive rounded-2xl px-4 py-4 flex items-center gap-3 mt-4"
               style={{
                 background: 'rgba(192,57,43,0.08)',
                 border: '1px solid rgba(192,57,43,0.2)',
@@ -258,7 +257,7 @@ export function ProfilePage() {
           <button
             id="profile-logout-btn"
             onClick={handleLogout}
-            className="ws-press rounded-2xl px-4 py-4 flex items-center justify-center gap-2 mt-4"
+            className="btn-explosive rounded-2xl px-4 py-4 flex items-center justify-center gap-2 mt-4"
             style={{
               background: 'transparent',
               border: '1px solid rgba(44,26,19,0.1)',

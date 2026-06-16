@@ -23,7 +23,6 @@ interface Conversation {
 import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
 
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -130,7 +129,7 @@ export function AnonConvPage() {
   const bellActive = pushState === 'subscribed'
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: BG, fontFamily: FONT_SANS }}>
+    <div className="min-h-screen flex flex-col" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
       <BackgroundBlobs />
       {/* Texture grain */}
       <div

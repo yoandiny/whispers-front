@@ -47,7 +47,7 @@ export function BottomNav({ unreadCount = 0 }: BottomNavProps) {
               key={to}
               id={`nav-${label.toLowerCase()}`}
               onClick={() => navigate(to)}
-              className="ws-press relative flex flex-col items-center gap-1 px-4 py-1.5"
+              className="btn-explosive relative flex flex-col items-center gap-1 px-4 py-1.5"
               style={{ color: active ? '#C0392B' : '#8A6B5E' }}
             >
               <div className="relative">
@@ -77,10 +77,11 @@ export function BottomNav({ unreadCount = 0 }: BottomNavProps) {
               {/* Indicateur actif — point rouge sous l'icône */}
               <span
                 style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: '0.65rem',
-                  fontWeight: active ? 600 : 400,
-                  letterSpacing: active ? '0.02em' : '0',
+                  fontFamily: 'var(--font-syne)',
+                  fontSize: '0.62rem',
+                  fontWeight: active ? 800 : 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: active ? '0.04em' : '0.02em',
                 }}
               >
                 {label}
