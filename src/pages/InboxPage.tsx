@@ -22,8 +22,6 @@ function timeAgo(date: Date): string {
 import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
 
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SERIF = "var(--font-serif)"
-const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -93,7 +91,7 @@ export function InboxPage() {
   if (!username) return null
 
   return (
-    <div className="min-h-screen" style={{ background: BG, fontFamily: FONT_SANS }}>
+    <div className="min-h-screen" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
       <BackgroundBlobs />
       {/* Texture grain */}
       <div
@@ -115,7 +113,7 @@ export function InboxPage() {
           }}
         >
           <div>
-            <span className="animate-tracking-in" style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', color: BROWN, fontWeight: 700 }}>
+            <span className="animate-tracking-in" style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.4rem', color: BROWN }}>
               Whispers
             </span>
             <span className="ml-1.5" style={{ fontSize: '0.8rem', color: MUTED }}>
@@ -164,7 +162,7 @@ export function InboxPage() {
             {/* Ligne rouge décorative */}
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: RED }} />
             <div className="pl-2">
-              <p className="text-sm" style={{ color: RED, fontWeight: 700, fontFamily: FONT_SANS }}>
+              <p style={{ color: RED, fontWeight: 700, fontFamily: 'var(--font-tech)', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.75rem' }}>
                 Partage ton lien
               </p>
               <p className="text-xs mt-0.5" style={{ color: MUTED, fontFamily: 'monospace' }}>
@@ -264,7 +262,7 @@ export function InboxPage() {
               {messages.map((msg: Message, i: number) => (
                 <div
                   key={msg.id}
-                  className="ws-lift rounded-xl cursor-pointer animate-fade-up"
+                  className="card-explosive rounded-xl cursor-pointer animate-fade-up"
                   style={{
                     animationDelay: `${Math.min(i * 0.04, 0.3)}s`,
                     background: '#FFF8F5',
@@ -288,22 +286,21 @@ export function InboxPage() {
                             boxShadow: msg.read ? 'none' : '0 0 4px rgba(192,57,43,0.5)',
                           }}
                         />
-                        <span className="text-xs" style={{ color: MUTED, fontWeight: msg.read ? 400 : 600 }}>
+                        <span style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.68rem', fontWeight: msg.read ? 400 : 600 }}>
                           {timeAgo(new Date(msg.time))}
                         </span>
                       </div>
                       <p
-                        className="text-sm leading-relaxed"
                         style={{
                           color: BROWN,
-                          fontFamily: expanded === msg.id ? FONT_SERIF : FONT_SANS,
-                          fontSize: expanded === msg.id ? '1.05rem' : '0.95rem',
-                          fontStyle: expanded === msg.id ? 'italic' : 'normal',
+                          fontFamily: expanded === msg.id ? 'var(--font-cursive)' : 'var(--font-sans)',
+                          fontSize: expanded === msg.id ? '1.45rem' : '0.92rem',
+                          lineHeight: expanded === msg.id ? 1.4 : 1.5,
                           display: expanded === msg.id ? 'block' : '-webkit-box',
                           WebkitLineClamp: expanded === msg.id ? undefined : 2,
                           WebkitBoxOrient: 'vertical' as const,
                           overflow: expanded === msg.id ? 'visible' : 'hidden',
-                          transition: 'font-size 0.2s',
+                          transition: 'font-size 0.2s, font-family 0.2s',
                         }}
                       >
                         "{msg.text}"
@@ -331,11 +328,12 @@ export function InboxPage() {
                         id={`share-msg-${msg.id}`}
                         onClick={() => shareMessageAsStory(msg)}
                         disabled={sharingId === msg.id}
-                        className="ws-press flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
+                        className="btn-explosive flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
                         style={{
                           background: 'rgba(192,57,43,0.06)',
                           color: RED,
-                          fontWeight: 500,
+                          fontFamily: 'var(--font-tech)',
+                          fontWeight: 700,
                         }}
                       >
                         <ImageIcon size={13} />
@@ -344,8 +342,8 @@ export function InboxPage() {
                       <button
                         id={`delete-msg-${msg.id}`}
                         onClick={() => deleteMessage(msg.id)}
-                        className="ws-press flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg hover:opacity-80"
-                        style={{ color: '#E53935' }}
+                        className="btn-explosive flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg hover:opacity-80"
+                        style={{ color: '#E53935', fontFamily: 'var(--font-tech)', fontWeight: 700 }}
                       >
                         <Trash2 size={13} />
                         Supprimer

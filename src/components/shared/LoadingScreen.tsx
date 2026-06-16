@@ -1,9 +1,8 @@
 
-
 /* Flamme SVG animée pour le loading */
 function FlameIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'flamePulse 1.6s ease-in-out infinite' }}>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ animation: 'flamePulse 1.6s ease-in-out infinite' }}>
       <path
         d="M12 2C12 2 7 7.5 7 12.5C7 15.538 9.239 18 12 18C14.761 18 17 15.538 17 12.5C17 9.5 15 7 14 5.5C14 5.5 13.5 8 12 9C12 9 10 7 12 2Z"
         fill="url(#flameGrad)"
@@ -28,23 +27,23 @@ function FlameIcon() {
 export function LoadingScreen({ label = 'Chargement...' }: { label?: string }) {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center gap-5 animate-fade-in"
+      className="min-h-screen flex flex-col items-center justify-center gap-6 animate-fade-in"
       style={{
         background: 'linear-gradient(180deg, #FAF6F0 0%, #F5EBE6 50%, #FAF0EE 100%)',
-        fontFamily: "'DM Sans', sans-serif",
       }}
     >
       <style>{`
         @keyframes flamePulse {
           0%, 100% { transform: scale(1) rotate(-2deg); }
-          50% { transform: scale(1.12) rotate(2deg); }
+          50% { transform: scale(1.14) rotate(2deg); }
         }
         @keyframes dotBounce {
           0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-          40% { transform: translateY(-5px); opacity: 1; }
+          40% { transform: translateY(-6px); opacity: 1; }
         }
       `}</style>
 
+      {/* Icône flamme */}
       <div
         className="w-16 h-16 rounded-2xl flex items-center justify-center"
         style={{
@@ -56,6 +55,20 @@ export function LoadingScreen({ label = 'Chargement...' }: { label?: string }) {
         <FlameIcon />
       </div>
 
+      {/* Titre en Dela Gothic */}
+      <span
+        style={{
+          fontFamily: 'var(--font-gothic)',
+          fontSize: '1.6rem',
+          color: '#2C1A13',
+          letterSpacing: '0.01em',
+          lineHeight: 1,
+        }}
+      >
+        Whispers
+      </span>
+
+      {/* Points animés */}
       <div className="flex items-center gap-1.5">
         {[0, 0.18, 0.36].map((delay, i) => (
           <span
@@ -69,7 +82,8 @@ export function LoadingScreen({ label = 'Chargement...' }: { label?: string }) {
         ))}
       </div>
 
-      <p className="text-xs" style={{ color: '#8A6B5E', letterSpacing: '0.02em' }}>
+      {/* Label en DM Mono */}
+      <p style={{ color: '#8A6B5E', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         {label}
       </p>
     </div>

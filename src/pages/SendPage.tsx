@@ -16,8 +16,6 @@ const PROMPTS = [
 ]
 
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SERIF = "var(--font-serif)"
-const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -130,7 +128,7 @@ export function SendPage() {
   /* ── Message envoyé ── */
   if (sent) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG, fontFamily: FONT_SANS }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
         <BackgroundBlobs />
         {/* Grain */}
         <div
@@ -245,7 +243,7 @@ export function SendPage() {
 
   /* ── Formulaire principal ── */
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG, fontFamily: FONT_SANS }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
       <BackgroundBlobs />
       {/* Grain */}
       <div
@@ -269,23 +267,23 @@ export function SendPage() {
               boxShadow: '0 8px 24px rgba(192,57,43,0.25)',
             }}
           >
-            <span style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: '#FFF8F5', fontWeight: 700 }}>
+            <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.7rem', color: '#FFF8F5', lineHeight: 1 }}>
               {recipientUsername[0] ? recipientUsername[0].toUpperCase() : ''}
             </span>
           </div>
-          <p className="text-sm" style={{ color: MUTED }}>Message anonyme pour</p>
-          <p className="mt-0.5 font-semibold animate-tracking-in" style={{ color: BROWN, fontSize: '1.1rem' }}>@{recipientUsername}</p>
+          <p style={{ color: MUTED, fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.65rem' }}>Message anonyme pour</p>
+          <p className="mt-1 animate-tracking-in" style={{ color: BROWN, fontFamily: 'var(--font-gothic)', fontSize: '1.15rem', letterSpacing: '0.01em' }}>@{recipientUsername}</p>
         </div>
 
-        {/* Prompt en italique serif */}
+        {/* Prompt en italique cursive */}
         <p
           className="text-center mb-5 px-2"
           style={{
-            fontFamily: FONT_SERIF,
-            fontStyle: 'italic',
-            fontSize: '1.05rem',
+            fontFamily: 'var(--font-cursive)',
+            fontSize: '1.5rem',
             color: MUTED,
-            lineHeight: 1.6,
+            lineHeight: 1.4,
+            transform: 'rotate(-1deg)',
           }}
         >
           "{activePrompt}"
@@ -326,9 +324,10 @@ export function SendPage() {
             maxLength={300}
             className="w-full resize-none outline-none"
             style={{
-              fontSize: '0.95rem',
+              fontFamily: 'var(--font-cursive)',
+              fontSize: '1.4rem',
               background: 'transparent',
-              lineHeight: '1.75',
+              lineHeight: '1.55',
               color: BROWN,
               position: 'relative',
               zIndex: 1,
@@ -338,7 +337,7 @@ export function SendPage() {
           />
         </div>
         <div className="flex justify-end mt-1 mb-5">
-          <span className="text-xs" style={{ color: message.length > 260 ? RED : '#C4A89E' }}>
+          <span style={{ color: message.length > 260 ? RED : '#C4A89E', fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>
             {message.length}/300
           </span>
         </div>
@@ -351,8 +350,11 @@ export function SendPage() {
             disabled={!message.trim() || sending}
             className="btn-explosive w-full py-3.5 rounded-xl flex items-center justify-center gap-2"
             style={{
-              fontWeight: 600,
-              fontSize: '0.95rem',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              fontSize: '0.8rem',
               background: message.trim() && !sending
                 ? 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)'
                 : 'rgba(44, 26, 19, 0.06)',
@@ -368,7 +370,7 @@ export function SendPage() {
 
           <div className="relative flex items-center py-1">
             <div className="flex-grow border-t" style={{ borderColor: 'rgba(44,26,19,0.07)' }} />
-            <span className="flex-shrink-0 mx-4 text-xs" style={{ color: MUTED }}>ou bien</span>
+            <span className="flex-shrink-0 mx-4" style={{ color: MUTED, fontFamily: 'var(--font-cursive)', fontSize: '1.25rem' }}>ou bien</span>
             <div className="flex-grow border-t" style={{ borderColor: 'rgba(44,26,19,0.07)' }} />
           </div>
 
@@ -378,7 +380,11 @@ export function SendPage() {
             disabled={!message.trim() || sending}
             className="btn-explosive w-full py-3.5 rounded-xl flex items-center justify-center gap-2 border"
             style={{
-              fontWeight: 500,
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              fontSize: '0.75rem',
               background: message.trim() && !sending ? 'rgba(192,57,43,0.06)' : 'transparent',
               color: message.trim() && !sending ? RED : '#C4A89E',
               borderColor: message.trim() && !sending ? 'rgba(192,57,43,0.2)' : 'rgba(44,26,19,0.07)',

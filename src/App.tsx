@@ -26,7 +26,7 @@ export default function App() {
                 color: '#2C1A13',
                 border: '1px solid rgba(192,57,43,0.18)',
                 boxShadow: '0 4px 20px rgba(192,57,43,0.15)',
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: 'var(--font-sans)',
                 fontSize: '14px',
                 fontWeight: 500,
               },
