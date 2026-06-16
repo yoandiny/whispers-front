@@ -101,7 +101,7 @@ export function NotificationBell() {
   const showEnablePush = isPushSupported() && permission !== 'granted'
 
   return (
-    <div style={{ position: 'relative', isolation: 'isolate' }} ref={panelRef}>
+    <div style={{ position: 'relative', zIndex: 50 }} ref={panelRef}>
       {/* Bell button */}
       <button
         id="notif-bell-btn"

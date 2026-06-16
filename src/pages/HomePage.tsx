@@ -59,7 +59,7 @@ export function HomePage() {
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
-        <div className="px-5 pt-12 pb-2 flex items-end justify-between animate-fade-up">
+        <div className="px-5 pt-12 pb-2 flex items-end justify-between animate-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <div>
             <p style={{ color: MUTED, fontFamily: 'var(--font-cursive)', fontSize: '1.9rem', lineHeight: 0.9, transform: 'rotate(-2deg)', display: 'inline-block' }}>Bienvenue,</p>
             <h1
