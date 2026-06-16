@@ -77,7 +77,7 @@ export function BottomNav({ unreadCount = 0 }: BottomNavProps) {
               {/* Indicateur actif — point rouge sous l'icône */}
               <span
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "var(--font-sans)",
                   fontSize: '0.65rem',
                   fontWeight: active ? 600 : 400,
                   letterSpacing: active ? '0.02em' : '0',
