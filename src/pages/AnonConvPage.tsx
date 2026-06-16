@@ -20,7 +20,12 @@ interface Conversation {
   messages: Message[]
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
+const FONT_SERIF = "'Playfair Display', Georgia, serif"
+const FONT_SANS = "'DM Sans', sans-serif"
+const RED = '#C0392B'
+const BROWN = '#2C1A13'
+const MUTED = '#8A6B5E'
 
 export function AnonConvPage() {
   const { token } = useParams<{ token: string }>()
@@ -38,43 +43,21 @@ export function AnonConvPage() {
   const pushAttempted = useRef(false)
 
   useEffect(() => {
-    if (!token) {
-      navigate('/', { replace: true })
-      return
-    }
-
+    if (!token) { navigate('/', { replace: true }); return }
     api.get(`/api/conversations/token/${token}`)
-      .then(res => {
-        setConv(res.data.data)
-        setLoading(false)
-      })
-      .catch(() => {
-        setError(true)
-        setLoading(false)
-      })
+      .then(res => { setConv(res.data.data); setLoading(false) })
+      .catch(() => { setError(true); setLoading(false) })
   }, [token, navigate])
 
-  // Auto-subscribe to push once the conversation loads
   useEffect(() => {
     if (!conv || !token || pushAttempted.current) return
     pushAttempted.current = true
-
-    // Only auto-prompt if not already denied
-    if (!('Notification' in window) || Notification.permission === 'denied') {
-      setPushState('denied')
-      return
-    }
-    if (!('PushManager' in window)) {
-      setPushState('unsupported')
-      return
-    }
-
-    // If already granted, subscribe silently; otherwise prompt via the bell button
+    if (!('Notification' in window) || Notification.permission === 'denied') { setPushState('denied'); return }
+    if (!('PushManager' in window)) { setPushState('unsupported'); return }
     if (Notification.permission === 'granted') {
       setPushState('subscribing')
       subscribeAnonPush(token).then(setPushState)
     } else {
-      // Leave in 'idle' so the user can click the bell to enable
       setPushState('idle')
     }
   }, [conv, token])
@@ -118,53 +101,67 @@ export function AnonConvPage() {
 
   if (error || !conv) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0e0e0f' }}>
-        <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: '#ede8e1' }}>Conversation introuvable</h2>
-        <p className="mt-2 text-sm text-[#7a756d]">Ce lien est invalide ou expiré.</p>
-        <button onClick={() => navigate('/')} className="mt-6 px-4 py-2 bg-[#1e1e20] text-[#ede8e1] rounded-lg">Retour à l'accueil</button>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG }}>
+        <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: BROWN }}>Conversation introuvable</h2>
+        <p className="mt-2 text-sm text-[#8A6B5E]">Ce lien est invalide ou expiré.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="mt-6 px-4 py-2 text-[#FFF8F5] rounded-xl font-medium"
+          style={{ background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)' }}
+        >
+          Retour à l'accueil
+        </button>
       </div>
     )
   }
 
-  // Bell button state display
   const bellLabel =
     pushState === 'subscribed' ? 'Notifications activées ✓' :
     pushState === 'subscribing' ? 'Activation...' :
     pushState === 'denied' ? 'Notifications refusées' :
     pushState === 'unsupported' ? 'Push non supporté' :
     'Recevoir une notif si réponse'
-
   const bellActive = pushState === 'subscribed'
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: BG, fontFamily: FONT_SANS }}>
+      {/* Texture grain */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat', backgroundSize: '128px',
+        }}
+      />
+
       {/* Header */}
-      <div className="sticky top-0 z-10 px-5 py-4 flex items-center gap-3 border-b border-[rgba(255,255,255,0.06)]" style={{ background: '#0e0e0f' }}>
-        <button onClick={() => navigate('/')} className="p-2 -ml-2 text-[#7a756d] hover:text-[#ede8e1]">
+      <div
+        className="sticky top-0 z-10 px-5 py-4 flex items-center gap-3"
+        style={{
+          background: 'rgba(250, 246, 240, 0.9)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(44,26,19,0.06)',
+        }}
+      >
+        <button onClick={() => navigate('/')} className="p-2 -ml-2 text-[#8A6B5E] hover:text-[#C0392B] transition-colors">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#ede8e1', lineHeight: 1 }}>Conversation anonyme</h1>
-          <span className="text-xs text-[#7a756d]">Ton identité est masquée</span>
+          <h1 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', color: BROWN, lineHeight: 1 }}>Conversation anonyme</h1>
+          <span className="text-xs text-[#8A6B5E]">Ton identité est masquée</span>
         </div>
-        {/* Push notification bell */}
         {pushState !== 'unsupported' && (
           <button
             onClick={handleEnablePush}
             disabled={bellActive || pushState === 'subscribing' || pushState === 'denied'}
             title={bellLabel}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              border: `1px solid ${bellActive ? 'rgba(200,170,130,0.3)' : 'rgba(255,255,255,0.08)'}`,
-              background: bellActive ? 'rgba(200,170,130,0.12)' : '#1a1a1c',
-              color: bellActive ? '#c8aa82' : pushState === 'denied' ? '#4a4540' : '#7a756d',
-              flexShrink: 0,
-              transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: '36px', height: '36px', borderRadius: '10px',
+              border: `1px solid ${bellActive ? 'rgba(192,57,43,0.3)' : 'rgba(44,26,19,0.08)'}`,
+              background: bellActive ? 'rgba(192,57,43,0.08)' : '#FFF8F5',
+              color: bellActive ? RED : pushState === 'denied' ? '#D4B5AD' : MUTED,
+              flexShrink: 0, transition: 'all 0.15s',
               cursor: bellActive || pushState === 'denied' ? 'default' : 'pointer',
             }}
           >
@@ -173,24 +170,21 @@ export function AnonConvPage() {
         )}
       </div>
 
-      {/* Push CTA banner (only if idle — permission not yet asked) */}
       {pushState === 'idle' && (
         <button
           onClick={handleEnablePush}
-          className="w-full flex items-center gap-2 px-5 py-2.5 text-xs"
+          className="w-full flex items-center gap-2 px-5 py-3 text-xs"
           style={{
-            background: 'rgba(200,170,130,0.07)',
-            borderBottom: '1px solid rgba(200,170,130,0.12)',
-            color: '#c8aa82',
+            background: 'rgba(192,57,43,0.06)', borderBottom: '1px solid rgba(192,57,43,0.1)', color: RED, fontWeight: 500,
           }}
         >
-          <Bell size={13} />
+          <Bell size={14} />
           🔔 Active les notifications pour être alerté(e) si on te répond
         </button>
       )}
 
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4 relative z-10">
         {conv.messages.map((m, i) => {
           const isAnon = m.sender === 'anon'
           return (
@@ -198,10 +192,13 @@ export function AnonConvPage() {
               <div
                 className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm"
                 style={{
-                  background: isAnon ? '#c8aa82' : '#1e1e20',
-                  color: isAnon ? '#0e0e0f' : '#ede8e1',
+                  background: isAnon ? 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)' : '#FFF8F5',
+                  color: isAnon ? '#FFF8F5' : BROWN,
+                  border: isAnon ? 'none' : '1px solid rgba(44,26,19,0.08)',
+                  boxShadow: isAnon ? '0 4px 12px rgba(192,57,43,0.2)' : '0 2px 8px rgba(44,26,19,0.04)',
                   borderBottomRightRadius: isAnon ? '4px' : '16px',
                   borderBottomLeftRadius: isAnon ? '16px' : '4px',
+                  lineHeight: 1.5,
                 }}
               >
                 {m.content}
@@ -212,14 +209,15 @@ export function AnonConvPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area */}
-      <div className="p-4 border-t border-[rgba(255,255,255,0.06)] bg-[#0e0e0f]">
-        <div className="flex items-end gap-2 bg-[#161618] border border-[rgba(255,255,255,0.08)] rounded-xl p-2 focus-within:border-[rgba(200,170,130,0.4)] transition-colors">
+      {/* Input */}
+      <div className="p-4 border-t border-[rgba(44,26,19,0.06)] relative z-10" style={{ background: 'rgba(250, 246, 240, 0.95)' }}>
+        <div className="flex items-end gap-2 bg-[#FFF8F5] border border-[rgba(44,26,19,0.1)] rounded-xl p-2 focus-within:border-[rgba(192,57,43,0.4)] transition-colors shadow-sm">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Écrire un message..."
-            className="flex-1 bg-transparent resize-none outline-none text-sm text-[#ede8e1] px-2 py-1 max-h-32"
+            className="flex-1 bg-transparent resize-none outline-none text-sm px-2 py-1 max-h-32"
+            style={{ color: BROWN, fontFamily: FONT_SANS }}
             rows={1}
             maxLength={500}
             onKeyDown={(e) => {
@@ -232,7 +230,11 @@ export function AnonConvPage() {
           <button
             onClick={handleSend}
             disabled={!text.trim() || sending}
-            className="p-2 rounded-lg bg-[#c8aa82] text-[#0e0e0f] disabled:opacity-50 disabled:bg-[#2a2a2c] disabled:text-[#7a756d] transition-colors"
+            className="p-2 rounded-lg transition-all"
+            style={{
+              background: (!text.trim() || sending) ? 'rgba(44,26,19,0.06)' : 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+              color: (!text.trim() || sending) ? '#D4B5AD' : '#FFF8F5',
+            }}
           >
             <Send size={16} />
           </button>

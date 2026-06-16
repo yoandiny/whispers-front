@@ -1,21 +1,35 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowRight, MessageCircle, Lock } from 'lucide-react'
+import { ArrowRight, Lock } from 'lucide-react'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
 import { LoadingScreen } from '@/components/shared/LoadingScreen'
+
+/* Icône enveloppe scellée à la cire */
+function SealIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <rect x="2" y="7" width="22" height="15" rx="3" fill="#FFF8F5" stroke="rgba(192,57,43,0.3)" strokeWidth="1.2"/>
+      <path d="M2 10L13 17L24 10" stroke="rgba(192,57,43,0.4)" strokeWidth="1.2" strokeLinecap="round"/>
+      <circle cx="13" cy="13" r="4" fill="#C0392B" opacity="0.9"/>
+      <circle cx="13" cy="13" r="2" fill="#FFF8F5" opacity="0.6"/>
+    </svg>
+  )
+}
+
+import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
 
 export function LandingPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const [focusedField, setFocusedField] = useState<'user' | 'pass' | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated, isAdmin, loading: authLoading, login } = useAuth()
 
-  // Already logged in? Skip the login screen entirely.
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       const from = (location.state as { from?: string } | null)?.from
@@ -32,16 +46,9 @@ export function LandingPage() {
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
 
     try {
-      const res = await api.post(endpoint, {
-        username: trimmedUsername,
-        password,
-      })
-
+      const res = await api.post(endpoint, { username: trimmedUsername, password })
       const { token, user } = res.data.data
-
-      // Persist the session through the auth layer
       login(token, user)
-
       toast.success(isLogin ? 'Bienvenue de retour !' : 'Compte créé avec succès !')
       const from = (location.state as { from?: string } | null)?.from
       navigate(from ?? (user.role === 'admin' ? '/admin' : '/home'), { replace: true })
@@ -55,115 +62,159 @@ export function LandingPage() {
 
   const isValid = username.trim().length > 0 && password.length >= 4
 
-  // While validating an existing session, avoid flashing the login form
   if (authLoading || isAuthenticated) return <LoadingScreen />
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}
+      style={{
+        background: 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)',
+        fontFamily: "var(--font-sans)",
+      }}
     >
-      <div className="w-full max-w-xs text-center animate-fade-up">
-        {/* Icon */}
+      {/* Background blobs */}
+      <BackgroundBlobs />
+
+      {/* Grain texture overlay */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat', backgroundSize: '128px',
+        }}
+      />
+
+      <div className="w-full max-w-xs text-center animate-fade-up" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Icône sceau */}
         <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-8 animate-pop"
-          style={{ background: 'rgba(200,170,130,0.08)', border: '1px solid rgba(200,170,130,0.15)' }}
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-8 animate-pop"
+          style={{
+            background: 'linear-gradient(135deg, #FFF8F5 0%, #F5EBE6 100%)',
+            border: '1px solid rgba(192, 57, 43, 0.2)',
+            boxShadow: '0 6px 24px rgba(192, 57, 43, 0.12)',
+          }}
         >
-          <MessageCircle size={22} style={{ color: '#c8aa82' }} />
+          <SealIcon />
         </div>
 
-        {/* Heading */}
+        {/* Titre */}
         <h1
-          className="mb-2"
-          style={{ fontFamily: "'Instrument Serif', serif", fontSize: '2.4rem', color: '#ede8e1', lineHeight: 1.1 }}
+          className="mb-1 animate-tracking-in"
+          style={{
+            fontFamily: "var(--font-gothic)",
+            fontSize: "2.2rem",
+            color: '#2C1A13',
+            lineHeight: 1.05,
+          }}
         >
-          {isLogin ? 'Bon retour' : 'Créer un compte'}
+          {isLogin ? 'Bon retour.' : 'Rejoins-nous.'}
         </h1>
-        <p className="mb-10 text-sm" style={{ color: '#7a756d', lineHeight: 1.7 }}>
+        <p className="mb-8 text-xs px-2" style={{ color: '#8A6B5E', fontFamily: 'var(--font-syne)', fontWeight: 700, lineHeight: 1.6 }}>
           {isLogin
             ? 'Connecte-toi pour retrouver tes messages anonymes.'
-            : 'Crée ton compte et commence à recevoir des messages anonymes.'}
+            : 'Crée ton compte et commence à recevoir des confessions.'}
         </p>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <div
-            className="flex items-center rounded-xl overflow-hidden transition-colors"
-            style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.07)' }}
-          >
-            <span className="pl-4 pr-1" style={{ color: '#4a4540', fontSize: '0.95rem' }}>
-              @
-            </span>
-            <input
-              id="username-input"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
-              placeholder="your username"
-              className="flex-1 bg-transparent outline-none py-3 pr-4"
+        {/* Formulaire */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Champ username — style ligne soulignée */}
+          <div style={{ position: 'relative' }}>
+            <div
+              className="flex items-center"
               style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '0.95rem',
-                color: '#ede8e1',
+                borderBottom: `2px solid ${focusedField === 'user' ? '#C0392B' : 'rgba(44, 26, 19, 0.15)'}`,
+                transition: 'border-color 0.2s',
+                paddingBottom: '6px',
               }}
-              autoFocus
-              disabled={isLoading}
-            />
+            >
+              <span style={{ color: '#C0392B', fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: 900, marginRight: 4 }}>@</span>
+              <input
+                id="username-input"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
+                placeholder="ton pseudo"
+                className="flex-1 bg-transparent outline-none"
+                style={{ fontSize: '1rem', color: '#2C1A13', fontFamily: 'var(--font-sans)' }}
+                autoFocus
+                disabled={isLoading}
+                onFocus={() => setFocusedField('user')}
+                onBlur={() => setFocusedField(null)}
+              />
+            </div>
           </div>
 
-          <div
-            className="flex items-center rounded-xl overflow-hidden transition-colors"
-            style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.07)' }}
-          >
-            <span className="pl-4 pr-2" style={{ color: '#4a4540' }}>
-              <Lock size={15} />
-            </span>
-            <input
-              id="password-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="password"
-              className="flex-1 bg-transparent outline-none py-3 pr-4"
+          <div style={{ position: 'relative' }}>
+            <div
+              className="flex items-center"
               style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '0.95rem',
-                color: '#ede8e1',
+                borderBottom: `2px solid ${focusedField === 'pass' ? '#C0392B' : 'rgba(44, 26, 19, 0.15)'}`,
+                transition: 'border-color 0.2s',
+                paddingBottom: '6px',
               }}
-              disabled={isLoading}
-            />
+            >
+              <Lock size={14} style={{ color: '#8A6B5E', marginRight: 8, flexShrink: 0 }} />
+              <input
+                id="password-input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="mot de passe"
+                className="flex-1 bg-transparent outline-none"
+                style={{ fontSize: '1rem', color: '#2C1A13', fontFamily: 'var(--font-sans)' }}
+                disabled={isLoading}
+                onFocus={() => setFocusedField('pass')}
+                onBlur={() => setFocusedField(null)}
+              />
+            </div>
           </div>
 
           <button
             id="auth-submit-btn"
             type="submit"
             disabled={!isValid || isLoading}
-            className="ws-press w-full py-3 rounded-xl flex items-center justify-center gap-2 mt-2"
+            className="btn-explosive w-full py-3.5 rounded-xl flex items-center justify-center gap-2 mt-3"
             style={{
-              background: isValid && !isLoading ? '#c8aa82' : '#1e1e20',
-              color: isValid && !isLoading ? '#0e0e0f' : '#3a3a3c',
-              fontWeight: 500,
+              background: isValid && !isLoading
+                ? 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)'
+                : 'rgba(44, 26, 19, 0.06)',
+              color: isValid && !isLoading ? '#FFF8F5' : '#C4A89E',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
               cursor: isValid && !isLoading ? 'pointer' : 'not-allowed',
+              boxShadow: isValid && !isLoading ? '0 6px 20px rgba(192, 57, 43, 0.3)' : 'none',
+              transition: 'all 0.2s',
             }}
           >
-            {isLoading ? 'Patientez...' : (isLogin ? 'Se connecter' : 'S\'inscrire')}
-            {!isLoading && <ArrowRight size={15} />}
+            {isLoading ? 'Patientez…' : (isLogin ? 'Se connecter' : "S'inscrire")}
+            {!isLoading && <ArrowRight size={16} />}
           </button>
 
           {!isLogin && (
-            <p className="text-xs mt-1" style={{ color: '#5a554e', lineHeight: 1.6 }}>
+            <p className="text-xs mt-1" style={{ color: '#8A6B5E', fontFamily: 'var(--font-sans)', lineHeight: 1.6 }}>
               Le mot de passe doit contenir au moins 4 caractères.
             </p>
           )}
         </form>
 
-        <button 
+        <button
           onClick={() => setIsLogin(!isLogin)}
           disabled={isLoading}
-          className="ws-press mt-8 text-xs" 
-          style={{ color: '#7a756d' }}
+          className="btn-explosive mt-8 text-sm px-4 py-2 rounded-lg"
+          style={{
+            color: '#C0392B',
+            fontFamily: 'var(--font-cursive)',
+            fontSize: '1.2rem',
+            fontWeight: 700,
+            transition: 'all 0.2s',
+            background: 'transparent',
+            border: 'none',
+          }}
         >
-          {isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
+          {isLogin ? "Pas encore de compte ? S'inscrire →" : "Déjà un compte ? Se connecter →"}
         </button>
       </div>
     </div>

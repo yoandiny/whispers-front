@@ -85,22 +85,22 @@ export function OwnerConvPage() {
 
   if (error || !conv) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0e0e0f' }}>
-        <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: '#ede8e1' }}>Conversation introuvable</h2>
-        <button onClick={() => navigate('/conversations')} className="mt-6 px-4 py-2 bg-[#1e1e20] text-[#ede8e1] rounded-lg">Retour</button>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#faf7f2' }}>
+        <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: '#2b2540' }}>Conversation introuvable</h2>
+        <button onClick={() => navigate('/conversations')} className="mt-6 px-4 py-2 bg-[#efe9f7] text-[#2b2540] rounded-lg">Retour</button>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(180deg, #faf7f2 0%, #f3ecff 45%, #ffeef4 100%)', fontFamily: "'Inter', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 z-10 px-5 py-4 flex items-center gap-3 border-b border-[rgba(255,255,255,0.06)]" style={{ background: '#0e0e0f' }}>
-        <button onClick={() => navigate('/conversations')} className="p-2 -ml-2 text-[#7a756d] hover:text-[#ede8e1]">
+      <div className="sticky top-0 z-10 px-5 py-4 flex items-center gap-3 border-b border-[rgba(40,30,70,0.06)]" style={{ background: '#faf7f2' }}>
+        <button onClick={() => navigate('/conversations')} className="p-2 -ml-2 text-[#857e95] hover:text-[#2b2540]">
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#ede8e1', lineHeight: 1 }}>{conv.anonName}</h1>
+          <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#2b2540', lineHeight: 1 }}>{conv.anonName}</h1>
         </div>
       </div>
 
@@ -113,8 +113,8 @@ export function OwnerConvPage() {
               <div
                 className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm"
                 style={{
-                  background: isOwner ? '#c8aa82' : '#1e1e20',
-                  color: isOwner ? '#0e0e0f' : '#ede8e1',
+                  background: isOwner ? '#7c5cfc' : '#efe9f7',
+                  color: isOwner ? '#faf7f2' : '#2b2540',
                   borderBottomRightRadius: isOwner ? '4px' : '16px',
                   borderBottomLeftRadius: isOwner ? '16px' : '4px',
                 }}
@@ -128,13 +128,13 @@ export function OwnerConvPage() {
       </div>
 
       {/* Input area */}
-      <div className="p-4 border-t border-[rgba(255,255,255,0.06)] bg-[#0e0e0f]">
-        <div className="flex items-end gap-2 bg-[#161618] border border-[rgba(255,255,255,0.08)] rounded-xl p-2 focus-within:border-[rgba(200,170,130,0.4)] transition-colors">
+      <div className="p-4 border-t border-[rgba(40,30,70,0.06)] bg-[#faf7f2]">
+        <div className="flex items-end gap-2 bg-[#ffffff] border border-[rgba(40,30,70,0.08)] rounded-xl p-2 focus-within:border-[rgba(124,92,252,0.4)] transition-colors">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Répondre..."
-            className="flex-1 bg-transparent resize-none outline-none text-sm text-[#ede8e1] px-2 py-1 max-h-32"
+            className="flex-1 bg-transparent resize-none outline-none text-sm text-[#2b2540] px-2 py-1 max-h-32"
             rows={1}
             maxLength={500}
             onKeyDown={(e) => {
@@ -147,7 +147,7 @@ export function OwnerConvPage() {
           <button
             onClick={handleSend}
             disabled={!text.trim() || sending}
-            className="p-2 rounded-lg bg-[#c8aa82] text-[#0e0e0f] disabled:opacity-50 disabled:bg-[#2a2a2c] disabled:text-[#7a756d] transition-colors"
+            className="p-2 rounded-lg bg-[#7c5cfc] text-[#faf7f2] disabled:opacity-50 disabled:bg-[#2a2a2c] disabled:text-[#857e95] transition-colors"
           >
             <Send size={16} />
           </button>

@@ -28,7 +28,7 @@ function timeAgo(iso: string): string {
 }
 
 function NotifIcon({ type, read }: { type: string; read: boolean }) {
-  const color = read ? '#4a4540' : '#c8aa82'
+  const color = read ? '#b3acc2' : '#7c5cfc'
   if (type === 'admin') return <Megaphone size={15} style={{ color }} />
   if (type === 'message') return <MessageCircle size={15} style={{ color }} />
   return read ? <Check size={15} style={{ color }} /> : <BellRing size={15} style={{ color }} />
@@ -113,18 +113,18 @@ export function NotificationBell() {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: '12px',
-          background: open ? 'rgba(200,170,130,0.15)' : '#1a1a1c',
-          border: `1px solid ${open ? 'rgba(200,170,130,0.3)' : 'rgba(255,255,255,0.08)'}`,
-          color: '#c8aa82',
+          background: open ? 'rgba(124,92,252,0.15)' : '#f4f0fa',
+          border: `1px solid ${open ? 'rgba(124,92,252,0.3)' : 'rgba(40,30,70,0.08)'}`,
+          color: '#7c5cfc',
           transition: 'background 0.15s, border-color 0.15s',
           flexShrink: 0,
         }}
         title="Notifications"
       >
         {unreadCount > 0 ? (
-          <BellRing size={18} style={{ animation: 'bell-ring 0.6s ease', color: '#c8aa82' }} />
+          <BellRing size={18} style={{ animation: 'bell-ring 0.6s ease', color: '#7c5cfc' }} />
         ) : (
-          <Bell size={18} style={{ color: '#c8aa82' }} />
+          <Bell size={18} style={{ color: '#7c5cfc' }} />
         )}
         {unreadCount > 0 && (
           <span
@@ -141,10 +141,10 @@ export function NotificationBell() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: '#c8aa82',
-              color: '#0e0e0f',
+              background: 'linear-gradient(135deg, #7c5cfc 0%, #ff5fa2 100%)',
+              color: '#faf7f2',
               fontWeight: 700,
-              boxShadow: '0 0 0 2px #0e0e0f',
+              boxShadow: '0 0 0 2px #faf7f2',
               lineHeight: 1,
             }}
           >
@@ -167,24 +167,24 @@ export function NotificationBell() {
             overflow: 'hidden',
             zIndex: 9999,
             background: '#131315',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)',
+            border: '1px solid rgba(40,30,70,0.1)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(40,30,70,0.04)',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderBottom: '1px solid rgba(40,30,70,0.06)' }}
           >
             <div className="flex items-center gap-2">
-              <Bell size={14} style={{ color: '#c8aa82' }} />
-              <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.05rem', color: '#ede8e1' }}>
+              <Bell size={14} style={{ color: '#7c5cfc' }} />
+              <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.05rem', color: '#2b2540' }}>
                 Notifications
               </span>
               {unreadCount > 0 && (
                 <span
                   className="text-[11px] px-1.5 py-0.5 rounded-full"
-                  style={{ background: 'rgba(200,170,130,0.15)', color: '#c8aa82', fontWeight: 600 }}
+                  style={{ background: 'rgba(124,92,252,0.15)', color: '#7c5cfc', fontWeight: 600 }}
                 >
                   {unreadCount}
                 </span>
@@ -197,9 +197,9 @@ export function NotificationBell() {
                   onClick={markAllAsRead}
                   className="ws-press flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
                   style={{
-                    background: 'rgba(200,170,130,0.08)',
-                    color: '#c8aa82',
-                    border: '1px solid rgba(200,170,130,0.15)',
+                    background: 'rgba(124,92,252,0.08)',
+                    color: '#7c5cfc',
+                    border: '1px solid rgba(124,92,252,0.15)',
                   }}
                   title="Tout marquer comme lu"
                 >
@@ -210,7 +210,7 @@ export function NotificationBell() {
               <button
                 onClick={() => setOpen(false)}
                 className="ws-press w-6 h-6 flex items-center justify-center rounded-lg"
-                style={{ color: '#4a4540', background: 'rgba(255,255,255,0.04)' }}
+                style={{ color: '#b3acc2', background: 'rgba(40,30,70,0.04)' }}
               >
                 <X size={12} />
               </button>
@@ -225,9 +225,9 @@ export function NotificationBell() {
               disabled={enabling}
               className="ws-press w-full flex items-center gap-2 px-4 py-2.5 text-xs"
               style={{
-                background: 'rgba(200,170,130,0.06)',
-                color: '#c8aa82',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(124,92,252,0.06)',
+                color: '#7c5cfc',
+                borderBottom: '1px solid rgba(40,30,70,0.06)',
                 transition: 'background 0.15s',
               }}
             >
@@ -241,7 +241,7 @@ export function NotificationBell() {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
                 <Bell size={28} style={{ color: '#2a2520' }} />
-                <p className="text-sm" style={{ color: '#4a4540' }}>
+                <p className="text-sm" style={{ color: '#b3acc2' }}>
                   Aucune notification
                 </p>
               </div>
@@ -258,8 +258,8 @@ export function NotificationBell() {
                     onClick={() => handleClickNotification(n)}
                     className="ws-press w-full text-left px-4 py-3.5 flex gap-3"
                     style={{
-                      background: n.read ? 'transparent' : 'rgba(200,170,130,0.05)',
-                      borderBottom: '1px solid rgba(255,255,255,0.04)',
+                      background: n.read ? 'transparent' : 'rgba(124,92,252,0.05)',
+                      borderBottom: '1px solid rgba(40,30,70,0.04)',
                       transition: 'background 0.15s',
                     }}
                   >
@@ -267,7 +267,7 @@ export function NotificationBell() {
                     {!n.read && (
                       <span
                         className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full"
-                        style={{ background: '#c8aa82' }}
+                        style={{ background: 'linear-gradient(135deg, #7c5cfc 0%, #ff5fa2 100%)' }}
                       />
                     )}
 
@@ -280,14 +280,14 @@ export function NotificationBell() {
                     <div className="min-w-0 flex-1 pr-6">
                       <p
                         className="text-sm leading-snug"
-                        style={{ color: '#ede8e1', fontWeight: n.read ? 400 : 500 }}
+                        style={{ color: '#2b2540', fontWeight: n.read ? 400 : 500 }}
                       >
                         {n.title}
                       </p>
                       {n.body && (
                         <p
                           className="text-xs mt-0.5 break-words line-clamp-2"
-                          style={{ color: '#7a756d', lineHeight: 1.5 }}
+                          style={{ color: '#857e95', lineHeight: 1.5 }}
                         >
                           {n.body}
                         </p>
@@ -303,8 +303,8 @@ export function NotificationBell() {
                     onClick={(e) => handleDelete(e, n.id)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-lg ws-press"
                     style={{
-                      color: '#4a4540',
-                      background: hoveredId === n.id ? 'rgba(255,255,255,0.06)' : 'transparent',
+                      color: '#b3acc2',
+                      background: hoveredId === n.id ? 'rgba(40,30,70,0.06)' : 'transparent',
                       opacity: hoveredId === n.id ? 1 : 0,
                       transition: 'opacity 0.15s, background 0.15s',
                       pointerEvents: hoveredId === n.id ? 'auto' : 'none',
@@ -322,7 +322,7 @@ export function NotificationBell() {
           {notifications.length > 0 && (
             <div
               className="px-4 py-2.5 text-center"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
+              style={{ borderTop: '1px solid rgba(40,30,70,0.04)' }}
             >
               <span className="text-[11px]" style={{ color: '#3a3530' }}>
                 {notifications.length} notification{notifications.length > 1 ? 's' : ''}

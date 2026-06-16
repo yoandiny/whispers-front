@@ -162,25 +162,25 @@ export function AdminPage() {
   ]
 
   return (
-    <div className="min-h-screen" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #faf7f2 0%, #f3ecff 45%, #ffeef4 100%)', fontFamily: "'Inter', sans-serif" }}>
       {/* Top bar */}
       <div
         className="sticky top-0 z-10 px-5 py-4 flex items-center justify-between"
-        style={{ background: '#0e0e0f', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: '#faf7f2', borderBottom: '1px solid rgba(40,30,70,0.06)' }}
       >
         <div className="flex items-center gap-3">
           <button
             id="admin-back-btn"
             onClick={() => navigate('/home')}
             className="ws-press w-8 h-8 flex items-center justify-center rounded-lg"
-            style={{ background: '#1e1e20', border: '1px solid rgba(255,255,255,0.06)', color: '#7a756d' }}
+            style={{ background: '#efe9f7', border: '1px solid rgba(40,30,70,0.06)', color: '#857e95' }}
             title="Retour à l'application"
           >
             <ArrowLeft size={14} />
           </button>
           <div className="flex items-center gap-2">
-            <Shield size={18} style={{ color: '#c8aa82' }} />
-            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.25rem', color: '#ede8e1' }}>
+            <Shield size={18} style={{ color: '#7c5cfc' }} />
+            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.25rem', color: '#2b2540' }}>
               Administration
             </span>
           </div>
@@ -189,7 +189,7 @@ export function AdminPage() {
           id="admin-logout-btn"
           onClick={handleLogout}
           className="ws-press w-8 h-8 flex items-center justify-center rounded-lg"
-          style={{ background: '#1e1e20', border: '1px solid rgba(255,255,255,0.06)', color: '#7a756d' }}
+          style={{ background: '#efe9f7', border: '1px solid rgba(40,30,70,0.06)', color: '#857e95' }}
           title="Déconnexion"
         >
           <LogOut size={13} />
@@ -207,9 +207,9 @@ export function AdminPage() {
               onClick={() => setTab(id)}
               className="ws-press flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs"
               style={{
-                background: active ? 'rgba(200,170,130,0.12)' : '#161618',
-                color: active ? '#c8aa82' : '#7a756d',
-                border: active ? '1px solid rgba(200,170,130,0.2)' : '1px solid rgba(255,255,255,0.05)',
+                background: active ? 'rgba(124,92,252,0.12)' : '#ffffff',
+                color: active ? '#7c5cfc' : '#857e95',
+                border: active ? '1px solid rgba(124,92,252,0.2)' : '1px solid rgba(40,30,70,0.05)',
                 fontWeight: active ? 600 : 400,
               }}
             >
@@ -242,30 +242,30 @@ export function AdminPage() {
               <div
                 key={u.id}
                 className="rounded-xl px-4 py-3 flex items-center justify-between"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                style={{ background: '#ffffff', border: '1px solid rgba(40,30,70,0.05)' }}
               >
                 <button onClick={() => openProfile(u.id)} className="ws-press flex items-center gap-3 text-left flex-1 min-w-0">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82' }}
+                    style={{ background: 'rgba(124,92,252,0.1)', color: '#7c5cfc' }}
                   >
                     {u.username[0].toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm flex items-center gap-1.5" style={{ color: '#ede8e1' }}>
+                    <p className="text-sm flex items-center gap-1.5" style={{ color: '#2b2540' }}>
                       @{u.username}
-                      {u.role === 'admin' && <Shield size={11} style={{ color: '#c8aa82' }} />}
+                      {u.role === 'admin' && <Shield size={11} style={{ color: '#7c5cfc' }} />}
                     </p>
-                    <p className="text-xs" style={{ color: '#7a756d' }}>
+                    <p className="text-xs" style={{ color: '#857e95' }}>
                       {u.messageCount} message(s) · {fmtDate(u.createdAt)}
                     </p>
                   </div>
                 </button>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => openProfile(u.id)} className="ws-press" style={{ color: '#7a756d' }}>
+                  <button onClick={() => openProfile(u.id)} className="ws-press" style={{ color: '#857e95' }}>
                     <ChevronRight size={16} />
                   </button>
-                  <button id={`admin-delete-user-${u.id}`} className="ws-press" onClick={() => deleteUser(u.id)} style={{ color: '#c87a7a' }}>
+                  <button id={`admin-delete-user-${u.id}`} className="ws-press" onClick={() => deleteUser(u.id)} style={{ color: '#ff6b6b' }}>
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -280,19 +280,19 @@ export function AdminPage() {
             {/* Info banner */}
             <div
               className="rounded-xl px-4 py-3 flex items-start gap-3"
-              style={{ background: 'rgba(200,170,130,0.06)', border: '1px solid rgba(200,170,130,0.12)' }}
+              style={{ background: 'rgba(124,92,252,0.06)', border: '1px solid rgba(124,92,252,0.12)' }}
             >
-              <Bell size={15} style={{ color: '#c8aa82', marginTop: 2, flexShrink: 0 }} />
-              <p className="text-xs leading-relaxed" style={{ color: '#7a756d' }}>
-                Envoie une notification personnalisée <strong style={{ color: '#c8aa82' }}>in-app</strong> et{' '}
-                <strong style={{ color: '#c8aa82' }}>web-push</strong> — à tous les utilisateurs ou à un compte précis.
+              <Bell size={15} style={{ color: '#7c5cfc', marginTop: 2, flexShrink: 0 }} />
+              <p className="text-xs leading-relaxed" style={{ color: '#857e95' }}>
+                Envoie une notification personnalisée <strong style={{ color: '#7c5cfc' }}>in-app</strong> et{' '}
+                <strong style={{ color: '#7c5cfc' }}>web-push</strong> — à tous les utilisateurs ou à un compte précis.
                 Les notifications push ne sont envoyées qu'aux appareils ayant activé l'autorisation.
               </p>
             </div>
 
             {/* Target toggle */}
             <div>
-              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Destinataire</p>
+              <p className="text-xs mb-2" style={{ color: '#857e95' }}>Destinataire</p>
               <div className="flex gap-2">
                 {([
                   { id: 'all', label: '📣 Tout le monde' },
@@ -306,9 +306,9 @@ export function AdminPage() {
                       onClick={() => setNotifTarget(opt.id)}
                       className="ws-press flex-1 py-2.5 rounded-xl text-sm"
                       style={{
-                        background: active ? 'rgba(200,170,130,0.12)' : '#161618',
-                        color: active ? '#c8aa82' : '#7a756d',
-                        border: active ? '1px solid rgba(200,170,130,0.2)' : '1px solid rgba(255,255,255,0.05)',
+                        background: active ? 'rgba(124,92,252,0.12)' : '#ffffff',
+                        color: active ? '#7c5cfc' : '#857e95',
+                        border: active ? '1px solid rgba(124,92,252,0.2)' : '1px solid rgba(40,30,70,0.05)',
                         fontWeight: active ? 600 : 400,
                       }}
                     >
@@ -321,13 +321,13 @@ export function AdminPage() {
 
             {notifTarget === 'user' && (
               <div>
-                <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Sélectionner un compte</p>
+                <p className="text-xs mb-2" style={{ color: '#857e95' }}>Sélectionner un compte</p>
                 <select
                   id="admin-notif-user"
                   value={notifUserId}
                   onChange={(e) => setNotifUserId(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                  style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                  style={{ background: '#ffffff', border: '1px solid rgba(40,30,70,0.06)', color: '#2b2540' }}
                 >
                   <option value="">Sélectionner un utilisateur…</option>
                   {users.map((u) => (
@@ -340,7 +340,7 @@ export function AdminPage() {
             )}
 
             <div>
-              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Titre</p>
+              <p className="text-xs mb-2" style={{ color: '#857e95' }}>Titre</p>
               <input
                 id="admin-notif-title"
                 type="text"
@@ -349,13 +349,13 @@ export function AdminPage() {
                 placeholder="Ex: Maintenance programmée"
                 maxLength={120}
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                style={{ background: '#ffffff', border: '1px solid rgba(40,30,70,0.06)', color: '#2b2540' }}
               />
               <p className="text-xs mt-1 text-right" style={{ color: '#3a3530' }}>{notifTitle.length}/120</p>
             </div>
 
             <div>
-              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Message</p>
+              <p className="text-xs mb-2" style={{ color: '#857e95' }}>Message</p>
               <textarea
                 id="admin-notif-body"
                 value={notifBody}
@@ -364,7 +364,7 @@ export function AdminPage() {
                 maxLength={300}
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                style={{ background: '#ffffff', border: '1px solid rgba(40,30,70,0.06)', color: '#2b2540' }}
               />
               <p className="text-xs mt-1 text-right" style={{ color: '#3a3530' }}>{notifBody.length}/300</p>
             </div>
@@ -376,11 +376,11 @@ export function AdminPage() {
               className="ws-press w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm"
               style={{
                 background: (!notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId))
-                  ? 'rgba(200,170,130,0.15)'
-                  : '#c8aa82',
+                  ? 'rgba(124,92,252,0.15)'
+                  : '#7c5cfc',
                 color: (!notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId))
                   ? '#6a5d48'
-                  : '#0e0e0f',
+                  : '#faf7f2',
                 fontWeight: 500,
                 cursor: sendingNotif ? 'wait' : 'pointer',
                 transition: 'background 0.2s, color 0.2s',
@@ -400,17 +400,17 @@ export function AdminPage() {
               <div
                 key={m.id}
                 className="rounded-xl px-4 py-3"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                style={{ background: '#ffffff', border: '1px solid rgba(40,30,70,0.05)' }}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs" style={{ color: '#c8aa82' }}>
+                  <span className="text-xs" style={{ color: '#7c5cfc' }}>
                     → @{m.recipient.username}
                   </span>
-                  <span className="text-xs" style={{ color: '#4a4540' }}>
+                  <span className="text-xs" style={{ color: '#b3acc2' }}>
                     {fmtDate(m.createdAt)}
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: '#ede8e1' }}>
+                <p className="text-sm leading-relaxed" style={{ color: '#2b2540' }}>
                   {m.text}
                 </p>
               </div>
@@ -423,16 +423,16 @@ export function AdminPage() {
       {profile && (
         <div
           className="fixed inset-0 z-30 flex flex-col animate-slide-up"
-          style={{ background: '#0e0e0f' }}
+          style={{ background: '#faf7f2' }}
         >
           <div
             className="px-5 py-4 flex items-center gap-3"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderBottom: '1px solid rgba(40,30,70,0.06)' }}
           >
-            <button onClick={() => setProfile(null)} style={{ color: '#7a756d' }}>
+            <button onClick={() => setProfile(null)} style={{ color: '#857e95' }}>
               <ArrowLeft size={18} />
             </button>
-            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.1rem', color: '#ede8e1' }}>
+            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.1rem', color: '#2b2540' }}>
               Profil
             </span>
           </div>
@@ -441,16 +441,16 @@ export function AdminPage() {
             <div className="flex items-center gap-4 mb-6">
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center text-xl"
-                style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82' }}
+                style={{ background: 'rgba(124,92,252,0.1)', color: '#7c5cfc' }}
               >
                 {profile.username[0].toUpperCase()}
               </div>
               <div>
-                <p className="text-lg flex items-center gap-2" style={{ color: '#ede8e1' }}>
+                <p className="text-lg flex items-center gap-2" style={{ color: '#2b2540' }}>
                   @{profile.username}
-                  {profile.role === 'admin' && <Shield size={14} style={{ color: '#c8aa82' }} />}
+                  {profile.role === 'admin' && <Shield size={14} style={{ color: '#7c5cfc' }} />}
                 </p>
-                <p className="text-xs" style={{ color: '#7a756d' }}>
+                <p className="text-xs" style={{ color: '#857e95' }}>
                   Inscrit le {fmtDate(profile.createdAt)}
                 </p>
               </div>
@@ -460,13 +460,13 @@ export function AdminPage() {
               id="admin-profile-delete-btn"
               onClick={() => deleteUser(profile.id)}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm mb-6"
-              style={{ background: 'rgba(120,60,60,0.1)', border: '1px solid rgba(120,60,60,0.2)', color: '#c87a7a' }}
+              style={{ background: 'rgba(255,107,107,0.1)', border: '1px solid rgba(255,107,107,0.2)', color: '#ff6b6b' }}
             >
               <Trash2 size={14} />
               Supprimer ce compte
             </button>
 
-            <p className="text-xs mb-2" style={{ color: '#7a756d' }}>
+            <p className="text-xs mb-2" style={{ color: '#857e95' }}>
               Messages reçus ({profile.messages.length})
             </p>
             <div className="flex flex-col gap-2">
@@ -475,12 +475,12 @@ export function AdminPage() {
                 <div
                   key={m.id}
                   className="rounded-xl px-4 py-3"
-                  style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                  style={{ background: '#ffffff', border: '1px solid rgba(40,30,70,0.05)' }}
                 >
-                  <p className="text-sm" style={{ color: '#ede8e1' }}>
+                  <p className="text-sm" style={{ color: '#2b2540' }}>
                     {m.text}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: '#4a4540' }}>
+                  <p className="text-xs mt-1" style={{ color: '#b3acc2' }}>
                     {fmtDate(m.createdAt)}
                   </p>
                 </div>
@@ -498,12 +498,12 @@ function StatCard({ label, value, highlight }: { label: string; value: number; h
     <div
       className="ws-lift rounded-2xl p-4"
       style={{
-        background: highlight ? 'rgba(200,170,130,0.07)' : '#161618',
-        border: highlight ? '1px solid rgba(200,170,130,0.18)' : '1px solid rgba(255,255,255,0.05)',
+        background: highlight ? 'rgba(124,92,252,0.07)' : '#ffffff',
+        border: highlight ? '1px solid rgba(124,92,252,0.18)' : '1px solid rgba(40,30,70,0.05)',
       }}
     >
-      <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: highlight ? '#c8aa82' : '#c8aa82' }}>{value}</p>
-      <p className="text-xs mt-1" style={{ color: highlight ? '#8a7a62' : '#7a756d' }}>
+      <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: highlight ? '#7c5cfc' : '#7c5cfc' }}>{value}</p>
+      <p className="text-xs mt-1" style={{ color: highlight ? '#8a7a62' : '#857e95' }}>
         {label}
       </p>
     </div>
@@ -512,7 +512,7 @@ function StatCard({ label, value, highlight }: { label: string; value: number; h
 
 function Empty({ label }: { label: string }) {
   return (
-    <div className="text-center py-12 text-sm" style={{ color: '#4a4540' }}>
+    <div className="text-center py-12 text-sm" style={{ color: '#b3acc2' }}>
       {label}
     </div>
   )

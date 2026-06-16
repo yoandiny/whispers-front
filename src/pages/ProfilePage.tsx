@@ -12,6 +12,13 @@ import {
   disablePush,
 } from '@/lib/push'
 
+const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
+const FONT_SERIF = "'Playfair Display', Georgia, serif"
+const FONT_SANS = "'DM Sans', sans-serif"
+const RED = '#C0392B'
+const BROWN = '#2C1A13'
+const MUTED = '#8A6B5E'
+
 export function ProfilePage() {
   const navigate = useNavigate()
   const { user, isAdmin, logout } = useAuth()
@@ -20,37 +27,29 @@ export function ProfilePage() {
   const [copied, setCopied] = useState(false)
   const { unreadCount } = useMessages()
 
-  // ── Push notifications ───────────────────────────────────────────────────
   const pushSupported = isPushSupported()
   const [pushState, setPushState] = useState<'enabled' | 'disabled' | 'denied' | 'unsupported'>(
     () => {
       if (!isPushSupported()) return 'unsupported'
       const perm = pushPermission()
-      // Browser blocked → always show denied
       if (perm === 'denied') return 'denied'
-      // Enabled only if the user explicitly opted in via our toggle (localStorage flag)
       if (perm === 'granted' && localStorage.getItem('whispers_push_enabled') === 'true') return 'enabled'
-      // Default: disabled (opt-in required)
       return 'disabled'
     }
   )
   const [pushLoading, setPushLoading] = useState(false)
 
-  // Sync state when tab regains visibility (e.g. user changed browser perm settings)
   useEffect(() => {
     if (!pushSupported) return
     const sync = () => {
       const perm = pushPermission()
       if (perm === 'denied') {
-        // Browser blocked → override to denied and clear our flag
         localStorage.removeItem('whispers_push_enabled')
         setPushState('denied')
       } else if (perm !== 'granted') {
-        // Permission was reset (e.g. cleared in browser settings)
         localStorage.removeItem('whispers_push_enabled')
         setPushState('disabled')
       }
-      // If perm === 'granted' we do NOT auto-enable — user must click the toggle
     }
     document.addEventListener('visibilitychange', sync)
     return () => document.removeEventListener('visibilitychange', sync)
@@ -85,7 +84,6 @@ export function ProfilePage() {
       setPushLoading(false)
     }
   }, [pushState, pushLoading])
-  // ────────────────────────────────────────────────────────────────────────
 
   const shareUrl = `${window.location.origin}/${username}`
 
@@ -103,176 +101,170 @@ export function ProfilePage() {
   if (!username) return null
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
-      {/* Header */}
-      <div className="px-5 pt-12 flex flex-col items-center animate-fade-up">
-        <div
-          className="w-20 h-20 rounded-full flex items-center justify-center mb-4 animate-pop"
-          style={{
-            background: 'linear-gradient(135deg, #2a2420 0%, #1e1a16 100%)',
-            border: '1px solid rgba(200,170,130,0.2)',
-          }}
-        >
-          <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '2rem', color: '#c8aa82' }}>
-            {username[0].toUpperCase()}
-          </span>
-        </div>
-        <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.5rem', color: '#ede8e1' }}>
-          @{username}
-        </h1>
-        {role === 'admin' && (
-          <span
-            className="mt-2 flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(200,170,130,0.15)', color: '#c8aa82' }}
-          >
-            <Shield size={11} />
-            Administrateur
-          </span>
-        )}
-      </div>
+    <div className="min-h-screen pb-28" style={{ background: BG, fontFamily: FONT_SANS }}>
+      {/* Texture grain */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat', backgroundSize: '128px',
+        }}
+      />
 
-      {/* Info / actions */}
-      <div className="px-5 pt-8 flex flex-col gap-3 animate-fade-up delay-1">
-        <div
-          className="rounded-2xl px-4 py-3.5 flex items-center gap-3"
-          style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
-        >
-          <AtSign size={16} style={{ color: '#7a756d' }} />
-          <div className="flex-1 min-w-0">
-            <p className="text-xs" style={{ color: '#7a756d' }}>
-              Lien public
-            </p>
-            <p className="text-sm break-all" style={{ color: '#ede8e1' }}>
-              {shareUrl}
-            </p>
-          </div>
-          <button id="profile-copy-btn" onClick={copyLink} style={{ color: copied ? '#c8aa82' : '#7a756d' }}>
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-          </button>
-        </div>
-
-        <button
-          id="profile-preview-btn"
-          onClick={() => navigate(`/${username}`)}
-          className="ws-press rounded-2xl px-4 py-3.5 flex items-center gap-3"
-          style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)', color: '#ede8e1' }}
-        >
-          <Eye size={16} style={{ color: '#7a756d' }} />
-          <span className="text-sm">Aperçu de ta page</span>
-        </button>
-
-        {/* Push notifications toggle */}
-        {pushSupported && (
-          <button
-            id="profile-push-btn"
-            onClick={togglePush}
-            disabled={pushLoading || pushState === 'denied'}
-            className="ws-press rounded-2xl px-4 py-3.5 flex items-center gap-3"
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <div className="px-5 pt-12 flex flex-col items-center animate-fade-up">
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center mb-4 animate-pop"
             style={{
-              background:
-                pushState === 'enabled'
-                  ? 'rgba(200,170,130,0.08)'
-                  : pushState === 'denied'
-                  ? 'rgba(120,60,60,0.06)'
-                  : '#161618',
-              border:
-                pushState === 'enabled'
-                  ? '1px solid rgba(200,170,130,0.18)'
-                  : pushState === 'denied'
-                  ? '1px solid rgba(120,60,60,0.15)'
-                  : '1px solid rgba(255,255,255,0.05)',
-              opacity: pushLoading ? 0.6 : 1,
-              transition: 'background 0.3s, border 0.3s, opacity 0.2s',
-              width: '100%',
-              cursor: pushState === 'denied' ? 'not-allowed' : 'pointer',
+              background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+              border: '3px solid rgba(192,57,43,0.2)',
+              boxShadow: '0 8px 24px rgba(192,57,43,0.25)',
             }}
           >
-            {pushState === 'enabled' ? (
-              <Bell size={16} style={{ color: '#c8aa82' }} />
-            ) : (
-              <BellOff size={16} style={{ color: pushState === 'denied' ? '#c87a7a' : '#7a756d' }} />
-            )}
-            <div className="flex-1 text-left">
-              <p
-                className="text-sm"
-                style={{
-                  color:
-                    pushState === 'enabled'
-                      ? '#c8aa82'
-                      : pushState === 'denied'
-                      ? '#c87a7a'
-                      : '#ede8e1',
-                  fontWeight: pushState === 'enabled' ? 500 : 400,
-                }}
-              >
-                {pushLoading
-                  ? 'En cours…'
-                  : pushState === 'enabled'
-                  ? 'Notifications activées'
-                  : pushState === 'denied'
-                  ? 'Notifications bloquées'
-                  : 'Activer les notifications'}
+            <span style={{ fontFamily: FONT_SERIF, fontSize: '2.2rem', color: '#FFF8F5', fontWeight: 500 }}>
+              {username[0].toUpperCase()}
+            </span>
+          </div>
+          <h1 style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: BROWN }}>
+            @{username}
+          </h1>
+          {role === 'admin' && (
+            <span
+              className="mt-2 flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(192,57,43,0.1)', color: RED, fontWeight: 600 }}
+            >
+              <Shield size={12} />
+              Administrateur
+            </span>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="px-5 pt-8 flex flex-col gap-3 animate-fade-up delay-1">
+          <div
+            className="rounded-2xl px-4 py-4 flex items-center gap-3"
+            style={{
+              background: '#FFF8F5',
+              border: '1px solid rgba(44,26,19,0.06)',
+              boxShadow: '0 2px 8px rgba(44,26,19,0.04)',
+            }}
+          >
+            <AtSign size={16} style={{ color: MUTED }} />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs" style={{ color: MUTED }}>Lien public</p>
+              <p className="text-sm break-all font-medium" style={{ color: BROWN }}>
+                {shareUrl}
               </p>
-              {pushState === 'denied' && (
-                <p className="text-xs mt-0.5" style={{ color: '#7a756d' }}>
-                  Autorise-les dans les réglages du navigateur
-                </p>
-              )}
             </div>
-            {/* Toggle pill */}
-            {pushState !== 'denied' && (
-              <div
-                style={{
-                  width: 36,
-                  height: 20,
-                  borderRadius: 10,
-                  background: pushState === 'enabled' ? '#c8aa82' : 'rgba(255,255,255,0.1)',
-                  position: 'relative',
-                  flexShrink: 0,
-                  transition: 'background 0.3s',
-                }}
-              >
+            <button id="profile-copy-btn" onClick={copyLink} style={{ color: copied ? RED : MUTED, padding: '4px' }}>
+              {copied ? <Check size={18} /> : <Copy size={18} />}
+            </button>
+          </div>
+
+          <button
+            id="profile-preview-btn"
+            onClick={() => navigate(`/${username}`)}
+            className="ws-press rounded-2xl px-4 py-4 flex items-center gap-3"
+            style={{
+              background: '#FFF8F5',
+              border: '1px solid rgba(44,26,19,0.06)',
+              color: BROWN,
+              boxShadow: '0 2px 8px rgba(44,26,19,0.04)',
+            }}
+          >
+            <Eye size={16} style={{ color: MUTED }} />
+            <span className="text-sm font-medium">Aperçu de ta page</span>
+          </button>
+
+          {/* Push notifications */}
+          {pushSupported && (
+            <button
+              id="profile-push-btn"
+              onClick={togglePush}
+              disabled={pushLoading || pushState === 'denied'}
+              className="ws-press rounded-2xl px-4 py-4 flex items-center gap-3"
+              style={{
+                background: pushState === 'enabled' ? 'rgba(192,57,43,0.06)' : pushState === 'denied' ? 'rgba(44,26,19,0.04)' : '#FFF8F5',
+                border: pushState === 'enabled' ? '1px solid rgba(192,57,43,0.18)' : '1px solid rgba(44,26,19,0.06)',
+                boxShadow: pushState === 'enabled' ? 'none' : '0 2px 8px rgba(44,26,19,0.04)',
+                opacity: pushLoading ? 0.6 : 1,
+                transition: 'all 0.3s',
+                width: '100%',
+                cursor: pushState === 'denied' ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {pushState === 'enabled' ? (
+                <Bell size={16} style={{ color: RED }} />
+              ) : (
+                <BellOff size={16} style={{ color: pushState === 'denied' ? '#922B21' : MUTED }} />
+              )}
+              <div className="flex-1 text-left">
+                <p
+                  className="text-sm font-medium"
+                  style={{
+                    color: pushState === 'enabled' ? RED : pushState === 'denied' ? '#922B21' : BROWN,
+                  }}
+                >
+                  {pushLoading ? 'En cours…' : pushState === 'enabled' ? 'Notifications activées' : pushState === 'denied' ? 'Notifications bloquées' : 'Activer les notifications'}
+                </p>
+                {pushState === 'denied' && (
+                  <p className="text-xs mt-0.5" style={{ color: MUTED }}>
+                    Autorise-les dans les réglages du navigateur
+                  </p>
+                )}
+              </div>
+              {pushState !== 'denied' && (
                 <div
                   style={{
-                    position: 'absolute',
-                    top: 3,
-                    left: pushState === 'enabled' ? 19 : 3,
-                    width: 14,
-                    height: 14,
-                    borderRadius: '50%',
-                    background: '#fff',
-                    transition: 'left 0.25s cubic-bezier(.4,0,.2,1)',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                    width: 36, height: 20, borderRadius: 10,
+                    background: pushState === 'enabled' ? RED : 'rgba(44,26,19,0.1)',
+                    position: 'relative', flexShrink: 0, transition: 'background 0.3s',
                   }}
-                />
-              </div>
-            )}
-          </button>
-        )}
+                >
+                  <div
+                    style={{
+                      position: 'absolute', top: 3, left: pushState === 'enabled' ? 19 : 3,
+                      width: 14, height: 14, borderRadius: '50%', background: '#fff',
+                      transition: 'left 0.25s cubic-bezier(.4,0,.2,1)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                    }}
+                  />
+                </div>
+              )}
+            </button>
+          )}
 
-        {isAdmin && (
+          {isAdmin && (
+            <button
+              id="profile-admin-btn"
+              onClick={() => navigate('/admin')}
+              className="ws-press rounded-2xl px-4 py-4 flex items-center gap-3 mt-4"
+              style={{
+                background: 'rgba(192,57,43,0.08)',
+                border: '1px solid rgba(192,57,43,0.2)',
+                color: RED,
+              }}
+            >
+              <Shield size={16} />
+              <span className="text-sm font-medium">Interface d'administration</span>
+            </button>
+          )}
+
           <button
-            id="profile-admin-btn"
-            onClick={() => navigate('/admin')}
-            className="ws-press rounded-2xl px-4 py-3.5 flex items-center gap-3"
-            style={{ background: 'rgba(200,170,130,0.08)', border: '1px solid rgba(200,170,130,0.18)', color: '#c8aa82' }}
+            id="profile-logout-btn"
+            onClick={handleLogout}
+            className="ws-press rounded-2xl px-4 py-4 flex items-center justify-center gap-2 mt-4"
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(44,26,19,0.1)',
+              color: MUTED,
+            }}
           >
-            <Shield size={16} />
-            <span className="text-sm" style={{ fontWeight: 500 }}>
-              Interface d'administration
-            </span>
+            <LogOut size={16} />
+            <span className="text-sm font-medium">Se déconnecter</span>
           </button>
-        )}
-
-        <button
-          id="profile-logout-btn"
-          onClick={handleLogout}
-          className="ws-press rounded-2xl px-4 py-3.5 flex items-center gap-3 mt-2"
-          style={{ background: 'rgba(120,60,60,0.08)', border: '1px solid rgba(120,60,60,0.18)', color: '#c87a7a' }}
-        >
-          <LogOut size={16} />
-          <span className="text-sm">Se déconnecter</span>
-        </button>
+        </div>
       </div>
 
       <BottomNav unreadCount={unreadCount} />

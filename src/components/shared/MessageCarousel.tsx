@@ -64,7 +64,7 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
               className="rounded-3xl p-7 flex flex-col min-h-[60dvh]"
               style={{
                 background: 'linear-gradient(150deg, #1c1a17 0%, #131214 60%, #0f0f10 100%)',
-                border: '1px solid rgba(200,170,130,0.15)',
+                border: '1px solid rgba(124,92,252,0.15)',
                 boxShadow: '0 20px 50px rgba(0,0,0,0.45)',
               }}
             >
@@ -72,9 +72,9 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
               <div className="flex items-center gap-2 mb-6">
                 <span
                   className="w-2 h-2 rounded-full"
-                  style={{ background: msg.read ? '#3a3a3c' : '#c8aa82' }}
+                  style={{ background: msg.read ? '#d9d2e6' : '#7c5cfc' }}
                 />
-                <span className="text-xs" style={{ color: '#7a756d' }}>
+                <span className="text-xs" style={{ color: '#857e95' }}>
                   {msg.read ? 'Déjà vu' : 'Nouveau'} · {timeAgo(msg.time)}
                 </span>
               </div>
@@ -85,7 +85,7 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
                   className="text-center"
                   style={{
                     fontFamily: "'Instrument Serif', serif",
-                    color: '#ede8e1',
+                    color: '#2b2540',
                     fontSize: msg.text.length > 140 ? '1.4rem' : '1.9rem',
                     lineHeight: 1.45,
                   }}
@@ -101,7 +101,7 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
                   onClick={() => onShare(msg)}
                   disabled={sharingId === msg.id}
                   className="ws-press flex items-center gap-1.5 text-xs px-4 py-2 rounded-full"
-                  style={{ background: 'rgba(200,170,130,0.12)', color: '#c8aa82', border: '1px solid rgba(200,170,130,0.25)' }}
+                  style={{ background: 'rgba(124,92,252,0.12)', color: '#7c5cfc', border: '1px solid rgba(124,92,252,0.25)' }}
                 >
                   <ImageIcon size={13} />
                   {sharingId === msg.id ? 'Génération...' : 'Story'}
@@ -110,7 +110,7 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
                   id={`card-delete-${msg.id}`}
                   onClick={() => onDelete(msg.id)}
                   className="ws-press flex items-center gap-1.5 text-xs px-4 py-2 rounded-full"
-                  style={{ background: 'rgba(120,60,60,0.1)', color: '#c87a7a', border: '1px solid rgba(120,60,60,0.2)' }}
+                  style={{ background: 'rgba(255,107,107,0.1)', color: '#ff6b6b', border: '1px solid rgba(255,107,107,0.2)' }}
                 >
                   <Trash2 size={13} />
                   Supprimer
@@ -127,7 +127,7 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
           aria-label="Précédent"
           onClick={() => goTo(active - 1)}
           className="ws-press absolute left-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(20,20,21,0.85)', border: '1px solid rgba(255,255,255,0.08)', color: '#ede8e1' }}
+          style={{ background: 'rgba(20,20,21,0.85)', border: '1px solid rgba(40,30,70,0.08)', color: '#2b2540' }}
         >
           <ChevronLeft size={18} />
         </button>
@@ -137,7 +137,7 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
           aria-label="Suivant"
           onClick={() => goTo(active + 1)}
           className="ws-press absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(20,20,21,0.85)', border: '1px solid rgba(255,255,255,0.08)', color: '#ede8e1' }}
+          style={{ background: 'rgba(20,20,21,0.85)', border: '1px solid rgba(40,30,70,0.08)', color: '#2b2540' }}
         >
           <ChevronRight size={18} />
         </button>
@@ -154,12 +154,12 @@ export function MessageCarousel({ messages, sharingId, onShare, onDelete, onActi
             style={{
               width: i === active ? 18 : 6,
               height: 6,
-              background: i === active ? '#c8aa82' : 'rgba(255,255,255,0.18)',
+              background: i === active ? '#7c5cfc' : 'rgba(40,30,70,0.18)',
             }}
           />
         ))}
       </div>
-      <p className="text-center text-xs mt-2" style={{ color: '#4a4540' }}>
+      <p className="text-center text-xs mt-2" style={{ color: '#b3acc2' }}>
         {active + 1} / {messages.length}
       </p>
     </div>
