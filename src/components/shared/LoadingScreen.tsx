@@ -1,4 +1,4 @@
-import { MessageCircle } from 'lucide-react'
+
 
 /* Flamme SVG animée pour le loading */
 function FlameIcon() {
