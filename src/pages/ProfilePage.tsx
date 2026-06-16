@@ -12,9 +12,10 @@ import {
   disablePush,
 } from '@/lib/push'
 
+import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
+
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SERIF = "'Playfair Display', Georgia, serif"
-const FONT_SANS = "'DM Sans', sans-serif"
+const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -102,6 +103,7 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-28" style={{ background: BG, fontFamily: FONT_SANS }}>
+      <BackgroundBlobs />
       {/* Texture grain */}
       <div
         style={{
@@ -122,11 +124,11 @@ export function ProfilePage() {
               boxShadow: '0 8px 24px rgba(192,57,43,0.25)',
             }}
           >
-            <span style={{ fontFamily: FONT_SERIF, fontSize: '2.2rem', color: '#FFF8F5', fontWeight: 500 }}>
+            <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '2rem', color: '#FFF8F5', lineHeight: 1 }}>
               {username[0].toUpperCase()}
             </span>
           </div>
-          <h1 style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: BROWN }}>
+          <h1 style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.6rem', color: BROWN }}>
             @{username}
           </h1>
           {role === 'admin' && (
@@ -143,7 +145,7 @@ export function ProfilePage() {
         {/* Actions */}
         <div className="px-5 pt-8 flex flex-col gap-3 animate-fade-up delay-1">
           <div
-            className="rounded-2xl px-4 py-4 flex items-center gap-3"
+            className="card-explosive rounded-2xl px-4 py-4 flex items-center gap-3"
             style={{
               background: '#FFF8F5',
               border: '1px solid rgba(44,26,19,0.06)',
@@ -152,12 +154,12 @@ export function ProfilePage() {
           >
             <AtSign size={16} style={{ color: MUTED }} />
             <div className="flex-1 min-w-0">
-              <p className="text-xs" style={{ color: MUTED }}>Lien public</p>
-              <p className="text-sm break-all font-medium" style={{ color: BROWN }}>
+              <p className="text-xs mb-0.5" style={{ color: MUTED, fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Lien public</p>
+              <p className="text-sm break-all" style={{ color: BROWN, fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
                 {shareUrl}
               </p>
             </div>
-            <button id="profile-copy-btn" onClick={copyLink} style={{ color: copied ? RED : MUTED, padding: '4px' }}>
+            <button id="profile-copy-btn" onClick={copyLink} className="btn-explosive rounded-lg p-2" style={{ color: copied ? RED : MUTED }}>
               {copied ? <Check size={18} /> : <Copy size={18} />}
             </button>
           </div>
@@ -165,16 +167,18 @@ export function ProfilePage() {
           <button
             id="profile-preview-btn"
             onClick={() => navigate(`/${username}`)}
-            className="ws-press rounded-2xl px-4 py-4 flex items-center gap-3"
+            className="btn-explosive rounded-2xl px-4 py-4 flex items-center gap-3"
             style={{
               background: '#FFF8F5',
               border: '1px solid rgba(44,26,19,0.06)',
               color: BROWN,
               boxShadow: '0 2px 8px rgba(44,26,19,0.04)',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
             }}
           >
             <Eye size={16} style={{ color: MUTED }} />
-            <span className="text-sm font-medium">Aperçu de ta page</span>
+            <span>Aperçu de ta page</span>
           </button>
 
           {/* Push notifications */}

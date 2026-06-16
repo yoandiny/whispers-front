@@ -20,9 +20,10 @@ interface Conversation {
   messages: Message[]
 }
 
+import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
+
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SERIF = "'Playfair Display', Georgia, serif"
-const FONT_SANS = "'DM Sans', sans-serif"
+const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -102,12 +103,17 @@ export function AnonConvPage() {
   if (error || !conv) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG }}>
-        <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: BROWN }}>Conversation introuvable</h2>
-        <p className="mt-2 text-sm text-[#8A6B5E]">Ce lien est invalide ou expiré.</p>
+        <BackgroundBlobs />
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: BROWN, fontWeight: 700 }}>Conversation introuvable</h2>
+        <p className="mt-2 text-sm text-[#8A6B5E]" style={{ fontFamily: 'var(--font-sans)' }}>Ce lien est invalide ou expiré.</p>
         <button
           onClick={() => navigate('/')}
-          className="mt-6 px-4 py-2 text-[#FFF8F5] rounded-xl font-medium"
-          style={{ background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)' }}
+          className="btn-explosive mt-6 px-4 py-2 text-[#FFF8F5] rounded-xl font-medium"
+          style={{
+            background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+            fontFamily: 'var(--font-tech)',
+            fontWeight: 700,
+          }}
         >
           Retour à l'accueil
         </button>
@@ -125,6 +131,7 @@ export function AnonConvPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: BG, fontFamily: FONT_SANS }}>
+      <BackgroundBlobs />
       {/* Texture grain */}
       <div
         style={{
@@ -136,25 +143,26 @@ export function AnonConvPage() {
 
       {/* Header */}
       <div
-        className="sticky top-0 z-10 px-5 py-4 flex items-center gap-3"
+        className="sticky top-0 z-10 px-5 py-3 flex items-center gap-3"
         style={{
-          background: 'rgba(250, 246, 240, 0.9)',
+          background: 'rgba(250, 246, 240, 0.85)',
           backdropFilter: 'blur(12px)',
           borderBottom: '1px solid rgba(44,26,19,0.06)',
         }}
       >
-        <button onClick={() => navigate('/')} className="p-2 -ml-2 text-[#8A6B5E] hover:text-[#C0392B] transition-colors">
+        <button onClick={() => navigate('/')} className="btn-explosive p-2 -ml-2 text-[#8A6B5E] hover:text-[#C0392B] rounded-lg transition-colors">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', color: BROWN, lineHeight: 1 }}>Conversation anonyme</h1>
-          <span className="text-xs text-[#8A6B5E]">Ton identité est masquée</span>
+          <h1 style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.25rem', color: BROWN, lineHeight: 1.1 }}>Conversation anonyme</h1>
+          <span style={{ fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.62rem', color: '#8A6B5E' }}>Ton identité est masquée</span>
         </div>
         {pushState !== 'unsupported' && (
           <button
             onClick={handleEnablePush}
             disabled={bellActive || pushState === 'subscribing' || pushState === 'denied'}
             title={bellLabel}
+            className="btn-explosive"
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: '36px', height: '36px', borderRadius: '10px',
@@ -175,7 +183,7 @@ export function AnonConvPage() {
           onClick={handleEnablePush}
           className="w-full flex items-center gap-2 px-5 py-3 text-xs"
           style={{
-            background: 'rgba(192,57,43,0.06)', borderBottom: '1px solid rgba(192,57,43,0.1)', color: RED, fontWeight: 500,
+            background: 'rgba(192,57,43,0.06)', borderBottom: '1px solid rgba(192,57,43,0.1)', color: RED, fontFamily: 'var(--font-tech)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em'
           }}
         >
           <Bell size={14} />
@@ -190,7 +198,7 @@ export function AnonConvPage() {
           return (
             <div key={m.id || i} className={`flex ${isAnon ? 'justify-end' : 'justify-start'}`}>
               <div
-                className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm"
+                className="max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm"
                 style={{
                   background: isAnon ? 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)' : '#FFF8F5',
                   color: isAnon ? '#FFF8F5' : BROWN,
@@ -198,7 +206,9 @@ export function AnonConvPage() {
                   boxShadow: isAnon ? '0 4px 12px rgba(192,57,43,0.2)' : '0 2px 8px rgba(44,26,19,0.04)',
                   borderBottomRightRadius: isAnon ? '4px' : '16px',
                   borderBottomLeftRadius: isAnon ? '16px' : '4px',
-                  lineHeight: 1.5,
+                  fontFamily: isAnon ? 'var(--font-cursive)' : 'var(--font-sans)',
+                  fontSize: isAnon ? '1.25rem' : '0.9rem',
+                  lineHeight: isAnon ? 1.3 : 1.4,
                 }}
               >
                 {m.content}
@@ -217,7 +227,7 @@ export function AnonConvPage() {
             onChange={(e) => setText(e.target.value)}
             placeholder="Écrire un message..."
             className="flex-1 bg-transparent resize-none outline-none text-sm px-2 py-1 max-h-32"
-            style={{ color: BROWN, fontFamily: FONT_SANS }}
+            style={{ color: BROWN, fontFamily: 'var(--font-sans)' }}
             rows={1}
             maxLength={500}
             onKeyDown={(e) => {
@@ -230,7 +240,7 @@ export function AnonConvPage() {
           <button
             onClick={handleSend}
             disabled={!text.trim() || sending}
-            className="p-2 rounded-lg transition-all"
+            className="btn-explosive p-2 rounded-lg transition-all"
             style={{
               background: (!text.trim() || sending) ? 'rgba(44,26,19,0.06)' : 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
               color: (!text.trim() || sending) ? '#D4B5AD' : '#FFF8F5',

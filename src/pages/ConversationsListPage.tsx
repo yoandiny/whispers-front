@@ -23,9 +23,10 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)}j`
 }
 
+import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
+
 const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
-const FONT_SERIF = "'Playfair Display', Georgia, serif"
-const FONT_SANS = "'DM Sans', sans-serif"
+const FONT_SANS = "var(--font-sans)"
 const RED = '#C0392B'
 const BROWN = '#2C1A13'
 const MUTED = '#8A6B5E'
@@ -46,6 +47,7 @@ export function ConversationsListPage() {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: BG, fontFamily: FONT_SANS }}>
+      <BackgroundBlobs />
       {/* Texture grain */}
       <div
         style={{
@@ -64,7 +66,7 @@ export function ConversationsListPage() {
           borderBottom: '1px solid rgba(44,26,19,0.06)',
         }}
       >
-        <h1 style={{ fontFamily: FONT_SERIF, fontSize: '1.5rem', color: BROWN, fontWeight: 500 }}>
+        <h1 style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.4rem', color: BROWN }}>
           Conversations
         </h1>
       </div>
@@ -74,8 +76,8 @@ export function ConversationsListPage() {
         {convs.length === 0 ? (
           <div className="text-center py-20">
             <MessageSquareText size={32} className="mx-auto mb-4" style={{ color: 'rgba(44,26,19,0.15)' }} />
-            <p className="text-sm font-medium" style={{ color: MUTED }}>Aucune conversation en cours</p>
-            <p className="text-xs mt-1.5" style={{ color: '#C4A89E' }}>Les gens peuvent en démarrer via ton lien.</p>
+            <p className="text-sm font-medium" style={{ color: MUTED, fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Aucune conversation en cours</p>
+            <p className="text-xs mt-1.5" style={{ color: '#C4A89E', fontFamily: 'var(--font-sans)' }}>Les gens peuvent en démarrer via ton lien.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -83,7 +85,7 @@ export function ConversationsListPage() {
               <div 
                 key={c.id} 
                 onClick={() => navigate(`/conversations/${c.id}`)}
-                className="ws-lift rounded-2xl cursor-pointer p-4 flex items-center gap-3"
+                className="card-explosive rounded-2xl cursor-pointer p-4 flex items-center gap-3 animate-fade-up"
                 style={{
                   background: '#FFF8F5',
                   border: '1px solid rgba(44,26,19,0.06)',
@@ -94,18 +96,18 @@ export function ConversationsListPage() {
                   className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(192,57,43,0.08)', color: RED }}
                 >
-                  <span style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600 }}>
+                  <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.1rem', fontWeight: 900 }}>
                     {c.anonName[0].toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium" style={{ color: BROWN }}>{c.anonName}</span>
-                    <span className="text-xs" style={{ color: MUTED }}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-sm" style={{ color: BROWN, fontFamily: 'var(--font-cursive)', fontSize: '1.25rem', fontWeight: 700 }}>{c.anonName}</span>
+                    <span className="text-xs" style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>
                       {timeAgo(c.lastMessage?.createdAt || c.createdAt)}
                     </span>
                   </div>
-                  <p className="text-sm truncate" style={{ color: c.unreadCount > 0 ? BROWN : MUTED, fontWeight: c.unreadCount > 0 ? 500 : 400 }}>
+                  <p className="text-sm truncate" style={{ color: c.unreadCount > 0 ? BROWN : MUTED, fontFamily: 'var(--font-sans)', fontWeight: c.unreadCount > 0 ? 600 : 400 }}>
                     {c.lastMessage ? (
                       <>
                         {c.lastMessage.sender === 'owner' ? <span style={{ opacity: 0.7 }}>Vous: </span> : ''}
@@ -121,7 +123,7 @@ export function ConversationsListPage() {
                     className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ background: RED, boxShadow: '0 2px 6px rgba(192,57,43,0.4)' }}
                   >
-                    <span className="text-[10px] font-bold text-[#FFF8F5]">{c.unreadCount}</span>
+                    <span className="text-[10px] font-black text-[#FFF8F5] pb-0.5" style={{ fontFamily: 'var(--font-serif)' }}>{c.unreadCount}</span>
                   </div>
                 )}
               </div>

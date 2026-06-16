@@ -100,20 +100,23 @@ export function SendPage() {
   if (!recipientExists) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG }}>
-        <div className="w-full max-w-sm text-center animate-fade-up">
-          <div className="mb-8"><BackButton to="/" /></div>
-          <h2 className="mb-3" style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: BROWN }}>
+        <BackgroundBlobs />
+        <div className="w-full max-w-sm text-center animate-fade-up" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="mb-8 flex justify-center"><BackButton to="/" /></div>
+          <h2 className="mb-3" style={{ fontFamily: "var(--font-serif)", fontSize: '1.8rem', color: BROWN, fontWeight: 700 }}>
             Compte introuvable
           </h2>
-          <p style={{ fontSize: '0.9rem', color: MUTED, lineHeight: 1.7 }}>
+          <p style={{ fontSize: '0.9rem', color: MUTED, fontFamily: 'var(--font-sans)', lineHeight: 1.7 }}>
             Le lien @{username} ne correspond à aucun utilisateur Whispers.
           </p>
           <button
             onClick={() => navigate('/', { replace: true })}
-            className="ws-press mt-8 px-6 py-3 rounded-xl text-sm"
+            className="btn-explosive mt-8 px-6 py-3 rounded-xl text-sm"
             style={{
               background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
-              color: '#FFF8F5', fontWeight: 600,
+              color: '#FFF8F5',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
               boxShadow: '0 6px 20px rgba(192,57,43,0.3)',
             }}
           >
@@ -147,10 +150,10 @@ export function SendPage() {
           >
             <Send size={20} style={{ color: '#FFF8F5' }} />
           </div>
-          <h2 className="mb-2" style={{ fontFamily: FONT_SERIF, fontSize: '1.8rem', color: BROWN, fontWeight: 700 }}>
+          <h2 className="mb-2" style={{ fontFamily: "var(--font-gothic)", fontSize: '1.6rem', color: BROWN }}>
             {convToken ? 'Conversation créée.' : 'Envoyé.'}
           </h2>
-          <p style={{ fontSize: '0.9rem', color: MUTED, marginBottom: convToken ? '1.5rem' : '0', lineHeight: 1.7 }}>
+          <p style={{ fontSize: '0.88rem', color: MUTED, fontFamily: 'var(--font-sans)', marginBottom: convToken ? '1.5rem' : '0', lineHeight: 1.7 }}>
             {convToken
               ? 'Votre message a été envoyé. Voici le lien unique pour y accéder à tout moment :'
               : 'Ton message a été livré anonymement.'}
@@ -165,20 +168,20 @@ export function SendPage() {
                 boxShadow: '0 2px 12px rgba(44,26,19,0.07)',
               }}
             >
-              <p className="text-xs mb-2" style={{ color: '#C0392B', fontWeight: 600 }}>
+              <p className="mb-2" style={{ color: '#C0392B', fontFamily: 'var(--font-syne)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 ⚠️ Sauvegarde ce lien, il ne sera plus affiché.
               </p>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <code
                   className="text-xs truncate flex-1"
-                  style={{ color: BROWN, background: '#F5EBE6', padding: '6px 8px', borderRadius: '8px' }}
+                  style={{ color: BROWN, background: '#F5EBE6', padding: '6px 8px', borderRadius: '8px', fontFamily: 'var(--font-mono)' }}
                 >
                   {window.location.origin}/c/{convToken}
                 </code>
                 <button
                   onClick={() => navigator.clipboard.writeText(`${window.location.origin}/c/${convToken}`)}
                   className="btn-explosive px-3 py-1.5 rounded-lg text-xs"
-                  style={{ background: BROWN, color: '#FFF8F5', fontWeight: 500 }}
+                  style={{ background: BROWN, color: '#FFF8F5', fontFamily: 'var(--font-tech)', fontWeight: 700 }}
                 >
                   Copier
                 </button>
@@ -190,7 +193,8 @@ export function SendPage() {
                   background: 'rgba(192,57,43,0.08)',
                   color: RED,
                   border: '1px solid rgba(192,57,43,0.2)',
-                  fontWeight: 500,
+                  fontFamily: 'var(--font-tech)',
+                  fontWeight: 700,
                 }}
               >
                 Accéder à la conversation
@@ -205,7 +209,8 @@ export function SendPage() {
                     background: pushState === 'denied' ? 'rgba(44,26,19,0.04)' : 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
                     color: pushState === 'denied' ? MUTED : '#FFF8F5',
                     cursor: pushState === 'denied' ? 'not-allowed' : 'pointer',
-                    fontWeight: 500,
+                    fontFamily: 'var(--font-tech)',
+                    fontWeight: 700,
                     boxShadow: pushState !== 'denied' ? '0 4px 14px rgba(192,57,43,0.25)' : 'none',
                   }}
                 >
@@ -216,7 +221,7 @@ export function SendPage() {
               {pushState === 'subscribed' && (
                 <div
                   className="w-full py-2.5 flex items-center justify-center gap-2 rounded-xl text-sm"
-                  style={{ color: RED, background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)' }}
+                  style={{ color: RED, background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', fontFamily: 'var(--font-tech)', fontWeight: 700 }}
                 >
                   <Bell size={16} />
                   Notifications activées ✓
@@ -229,7 +234,7 @@ export function SendPage() {
             id="send-another-btn"
             onClick={() => { setMessage(''); setSent(false); setConvToken(null) }}
             className="btn-explosive mt-4 text-sm"
-            style={{ color: RED, textDecoration: 'underline', textUnderlineOffset: '4px' }}
+            style={{ color: RED, fontFamily: 'var(--font-cursive)', fontSize: '1.25rem', fontWeight: 700 }}
           >
             Envoyer un autre message
           </button>
