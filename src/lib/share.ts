@@ -68,6 +68,16 @@ export async function shareImage(blob: Blob, filename = 'whispers-story.png', te
 const STORY_W = 1080
 const STORY_H = 1920
 
+// ── Palette "Lettre scellée à la cire" ───────────────────────────────────────
+const C_BG_TOP    = '#FAF6F0'   // crème chaude
+const C_BG_MID    = '#F5EBE6'   // parchemin rosé
+const C_BG_BOT    = '#FAF0EE'   // parchemin pêche
+const C_CARD      = '#FFF8F5'   // blanc chaud carte
+const C_RED       = '#C0392B'   // rouge laque
+const C_BROWN     = '#2C1A13'   // brun encre
+const C_MUTED     = '#8A6B5E'   // brun clair
+const C_BORDER    = 'rgba(192,57,43,0.20)' // bordure rouge tendre
+
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   const words = text.split(/\s+/)
   const lines: string[] = []
@@ -96,6 +106,20 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
+/** Draw a noise-like grain over the canvas for a warm parchment feel. */
+function drawGrain(ctx: CanvasRenderingContext2D) {
+  const imageData = ctx.createImageData(STORY_W, STORY_H)
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    const v = Math.random() > 0.5 ? 1 : 0
+    imageData.data[i]     = 200
+    imageData.data[i + 1] = 160
+    imageData.data[i + 2] = 130
+    imageData.data[i + 3] = v * 6 // très léger, quasi transparent
+  }
+  ctx.putImageData(imageData, 0, 0)
+}
+
+
 export interface StoryTemplateOptions {
   message: string
   username: string
@@ -104,102 +128,194 @@ export interface StoryTemplateOptions {
 }
 
 /**
+ * Preload the fonts needed for canvas rendering.
+ * CSS web fonts are NOT automatically available to canvas — we must
+ * explicitly load them via document.fonts before drawing.
+ */
+async function preloadFonts(): Promise<void> {
+  const toLoad = [
+    '600 38px Syne',
+    '400 40px "Plus Jakarta Sans"',
+    '500 64px Caveat',
+    '700 64px Caveat',
+    '900 60px Syne',
+    '600 38px "Space Grotesk"',
+  ]
+  await Promise.allSettled(toLoad.map((spec) => document.fonts.load(spec)))
+}
+
+/**
  * Render an anonymous message onto a branded 1080x1920 story template.
+ * Theme: warm parchment "Lettre scellée à la cire" (light, never dark).
  * Returns a PNG blob ready to be shared.
  */
 export async function generateStoryImage(opts: StoryTemplateOptions): Promise<Blob> {
   const { message, username, footer } = opts
+
+  // Ensure Google Fonts are available to the canvas context
+  await preloadFonts()
+
   const canvas = document.createElement('canvas')
   canvas.width = STORY_W
   canvas.height = STORY_H
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas non supporté')
 
-  // Background gradient
-  const bg = ctx.createLinearGradient(0, 0, STORY_W, STORY_H)
-  bg.addColorStop(0, '#141210')
-  bg.addColorStop(1, '#0a0a0b')
+  // ── 1. Solid warm cream base (drawn FIRST to guarantee light background) ──
+  ctx.fillStyle = C_BG_TOP
+  ctx.fillRect(0, 0, STORY_W, STORY_H)
+
+  // ── 2. Soft parchment gradient overlay ─────────────────────────────────────
+  const bg = ctx.createLinearGradient(0, 0, 0, STORY_H)
+  bg.addColorStop(0,   C_BG_TOP)
+  bg.addColorStop(0.45, C_BG_MID)
+  bg.addColorStop(1,   C_BG_BOT)
   ctx.fillStyle = bg
   ctx.fillRect(0, 0, STORY_W, STORY_H)
 
-  // Soft accent glow
-  const glow = ctx.createRadialGradient(STORY_W / 2, 520, 40, STORY_W / 2, 520, 700)
-  glow.addColorStop(0, 'rgba(200,170,130,0.16)')
-  glow.addColorStop(1, 'rgba(200,170,130,0)')
-  ctx.fillStyle = glow
+  // ── 3. Grain texture ───────────────────────────────────────────────────────
+  drawGrain(ctx)
+
+  // ── 4. Warm radial bloom (centre-haut) ─────────────────────────────────────
+  const bloom = ctx.createRadialGradient(STORY_W / 2, STORY_H * 0.28, 80, STORY_W / 2, STORY_H * 0.28, 700)
+  bloom.addColorStop(0, 'rgba(192,57,43,0.06)')
+  bloom.addColorStop(1, 'rgba(192,57,43,0)')
+  ctx.fillStyle = bloom
   ctx.fillRect(0, 0, STORY_W, STORY_H)
 
-  // Brand title
-  ctx.textAlign = 'center'
-  ctx.fillStyle = '#c8aa82'
-  ctx.font = "italic 64px 'Instrument Serif', Georgia, serif"
-  ctx.fillText('Whispers', STORY_W / 2, 280)
-
-  ctx.fillStyle = '#7a756d'
-  ctx.font = "400 34px 'Inter', sans-serif"
-  ctx.fillText('Message anonyme', STORY_W / 2, 340)
-
-  // Message card
-  const cardX = 110
-  const cardW = STORY_W - cardX * 2
-  const cardY = 540
-  const padding = 80
-
-  ctx.font = "500 52px 'Inter', sans-serif"
-  const lines = wrapText(ctx, message, cardW - padding * 2)
-  const lineHeight = 76
-  const textBlockH = lines.length * lineHeight
-  const cardH = Math.max(420, textBlockH + padding * 2 + 60)
-
-  ctx.fillStyle = 'rgba(255,255,255,0.04)'
-  roundRect(ctx, cardX, cardY, cardW, cardH, 48)
-  ctx.fill()
+  // ── 5. Top separator line ───────────────────────────────────────────────────
+  const sepGrad = ctx.createLinearGradient(200, 0, STORY_W - 200, 0)
+  sepGrad.addColorStop(0, 'rgba(192,57,43,0)')
+  sepGrad.addColorStop(0.5, C_BORDER)
+  sepGrad.addColorStop(1, 'rgba(192,57,43,0)')
+  ctx.strokeStyle = sepGrad
   ctx.lineWidth = 2
-  ctx.strokeStyle = 'rgba(200,170,130,0.22)'
-  roundRect(ctx, cardX, cardY, cardW, cardH, 48)
+  ctx.beginPath()
+  ctx.moveTo(160, 340)
+  ctx.lineTo(STORY_W - 160, 340)
   ctx.stroke()
 
-  // Opening quote mark
-  ctx.fillStyle = 'rgba(200,170,130,0.35)'
-  ctx.font = "italic 120px 'Instrument Serif', Georgia, serif"
-  ctx.textAlign = 'left'
-  ctx.fillText('“', cardX + padding - 10, cardY + 110)
-
-  // Message text
-  ctx.fillStyle = '#ede8e1'
-  ctx.font = "500 52px 'Inter', sans-serif"
+  // ── 6. Brand label ─────────────────────────────────────────────────────────
   ctx.textAlign = 'center'
-  const startY = cardY + (cardH - textBlockH) / 2 + 40
+
+  // "WHISPERS" label — use Syne if loaded, fallback to system sans-serif
+  ctx.fillStyle = C_MUTED
+  ctx.font = `700 42px Syne, 'Arial Black', sans-serif`
+  ctx.fillText('✦  WHISPERS  ✦', STORY_W / 2, 230)
+
+  // Subtitle
+  ctx.fillStyle = C_MUTED
+  ctx.font = `400 38px 'Plus Jakarta Sans', Arial, sans-serif`
+  ctx.fillText('Message anonyme reçu', STORY_W / 2, 298)
+
+  // ── 7. Message card ─────────────────────────────────────────────────────────
+  const cardX  = 100
+  const cardW  = STORY_W - cardX * 2
+  const cardY  = 410
+  const padH   = 90
+  const padV   = 70
+
+  // Measure message lines with Caveat (falls back to Georgia — both cursive)
+  ctx.font = `500 64px Caveat, Georgia, cursive`
+  const lines      = wrapText(ctx, message, cardW - padH * 2)
+  const lineH      = 88
+  const textBlockH = lines.length * lineH
+  const cardH      = Math.max(500, textBlockH + padV * 2 + 80)
+
+  // Card shadow
+  ctx.shadowColor   = 'rgba(44,26,19,0.12)'
+  ctx.shadowBlur    = 55
+  ctx.shadowOffsetY = 18
+
+  // Card fill — solid warm white (never transparent/dark)
+  ctx.fillStyle = C_CARD
+  roundRect(ctx, cardX, cardY, cardW, cardH, 56)
+  ctx.fill()
+
+  ctx.shadowColor   = 'transparent'
+  ctx.shadowBlur    = 0
+  ctx.shadowOffsetY = 0
+
+  // Card border
+  const cardBorderGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH)
+  cardBorderGrad.addColorStop(0, 'rgba(192,57,43,0.30)')
+  cardBorderGrad.addColorStop(0.5, 'rgba(192,57,43,0.10)')
+  cardBorderGrad.addColorStop(1, 'rgba(192,57,43,0.30)')
+  ctx.strokeStyle = cardBorderGrad
+  ctx.lineWidth   = 3
+  roundRect(ctx, cardX, cardY, cardW, cardH, 56)
+  ctx.stroke()
+
+  // Opening quote "
+  ctx.fillStyle   = 'rgba(192,57,43,0.20)'
+  ctx.font        = `italic 160px Georgia, serif`
+  ctx.textAlign   = 'left'
+  ctx.fillText('\u201C', cardX + padH - 10, cardY + padV + 110)
+
+  // Message text — Caveat (handwritten) with Georgia fallback
+  ctx.fillStyle   = C_BROWN
+  ctx.font        = `500 64px Caveat, Georgia, cursive`
+  ctx.textAlign   = 'center'
+  const startY    = cardY + (cardH - textBlockH) / 2 + lineH * 0.4
   lines.forEach((line, i) => {
-    ctx.fillText(line, STORY_W / 2, startY + i * lineHeight)
+    ctx.fillText(line, STORY_W / 2, startY + i * lineH)
   })
 
-  // Footer CTA
-  ctx.fillStyle = '#ede8e1'
-  ctx.font = "600 44px 'Inter', sans-serif"
-  ctx.textAlign = 'center'
-  ctx.fillText(`@${username}`, STORY_W / 2, STORY_H - 320)
+  // Closing quote "
+  ctx.fillStyle   = 'rgba(192,57,43,0.20)'
+  ctx.font        = `italic 160px Georgia, serif`
+  ctx.textAlign   = 'right'
+  ctx.fillText('\u201D', cardX + cardW - padH + 15, cardY + cardH - padV + 60)
 
-  ctx.fillStyle = '#c8aa82'
-  ctx.font = "400 36px 'Inter', sans-serif"
-  ctx.fillText(footer ?? 'Envoie-moi un message anonyme', STORY_W / 2, STORY_H - 250)
+  // ── 8. Footer — username & CTA ─────────────────────────────────────────────
+  const footerY = cardY + cardH + 110
 
-  // Pill button
+  // @username — Syne bold (falls back to Arial Black)
+  ctx.fillStyle  = C_BROWN
+  ctx.font       = `900 58px Syne, 'Arial Black', sans-serif`
+  ctx.textAlign  = 'center'
+  ctx.fillText(`@${username}`, STORY_W / 2, footerY)
+
+  // CTA
+  ctx.fillStyle  = C_MUTED
+  ctx.font       = `400 40px 'Plus Jakarta Sans', Arial, sans-serif`
+  ctx.fillText(footer ?? 'Envoie-moi un message anonyme', STORY_W / 2, footerY + 68)
+
+  // ── 9. URL pill ─────────────────────────────────────────────────────────────
   const pillText = 'whispers.yotech.mg'
-  ctx.font = "500 34px 'Inter', sans-serif"
-  const pillW = ctx.measureText(pillText).width + 80
-  const pillH = 84
-  const pillX = (STORY_W - pillW) / 2
-  const pillY = STORY_H - 200
-  ctx.fillStyle = 'rgba(200,170,130,0.12)'
+  ctx.font       = `600 36px 'Space Grotesk', Arial, sans-serif`
+  const pillW    = ctx.measureText(pillText).width + 90
+  const pillH    = 86
+  const pillX    = (STORY_W - pillW) / 2
+  const pillY    = STORY_H - 200
+
+  // Pill fill
+  ctx.fillStyle = 'rgba(192,57,43,0.08)'
   roundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2)
   ctx.fill()
-  ctx.strokeStyle = 'rgba(200,170,130,0.3)'
-  ctx.lineWidth = 2
+
+  // Pill border
+  ctx.strokeStyle = C_BORDER
+  ctx.lineWidth   = 2.5
   roundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2)
   ctx.stroke()
-  ctx.fillStyle = '#c8aa82'
+
+  // Pill text
+  ctx.fillStyle  = C_RED
+  ctx.textAlign  = 'center'
   ctx.fillText(pillText, STORY_W / 2, pillY + 54)
+
+  // ── 10. Bottom separator ───────────────────────────────────────────────────
+  const sepGrad2 = ctx.createLinearGradient(200, 0, STORY_W - 200, 0)
+  sepGrad2.addColorStop(0, 'rgba(192,57,43,0)')
+  sepGrad2.addColorStop(0.5, C_BORDER)
+  sepGrad2.addColorStop(1, 'rgba(192,57,43,0)')
+  ctx.strokeStyle = sepGrad2
+  ctx.lineWidth   = 2
+  ctx.beginPath()
+  ctx.moveTo(160, STORY_H - 110)
+  ctx.lineTo(STORY_W - 160, STORY_H - 110)
+  ctx.stroke()
 
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -208,3 +324,4 @@ export async function generateStoryImage(opts: StoryTemplateOptions): Promise<Bl
     }, 'image/png')
   })
 }
+

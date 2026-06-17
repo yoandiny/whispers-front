@@ -5,6 +5,7 @@ import api from '@/lib/api'
 import { BackButton } from '@/components/shared/BackButton'
 import { LoadingScreen } from '@/components/shared/LoadingScreen'
 import { subscribeAnonPush, type PushState } from '@/lib/push'
+import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
 
 const PROMPTS = [
   'What do you really think of me?',
@@ -13,6 +14,11 @@ const PROMPTS = [
   'Ask me anything.',
   "What's a secret you'd share anonymously?",
 ]
+
+const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
+const RED = '#C0392B'
+const BROWN = '#2C1A13'
+const MUTED = '#8A6B5E'
 
 export function SendPage() {
   const { username } = useParams<{ username: string }>()
@@ -26,20 +32,12 @@ export function SendPage() {
   const [convToken, setConvToken] = useState<string | null>(null)
   const [activePrompt] = useState(() => PROMPTS[Math.floor(Math.random() * PROMPTS.length)])
   const [pushState, setPushState] = useState<PushState>('idle')
+  const [focused, setFocused] = useState(false)
 
   useEffect(() => {
-    if (!convToken) {
-      setPushState('idle')
-      return
-    }
-    if (!('Notification' in window) || Notification.permission === 'denied') {
-      setPushState('denied')
-      return
-    }
-    if (!('PushManager' in window)) {
-      setPushState('unsupported')
-      return
-    }
+    if (!convToken) { setPushState('idle'); return }
+    if (!('Notification' in window) || Notification.permission === 'denied') { setPushState('denied'); return }
+    if (!('PushManager' in window)) { setPushState('unsupported'); return }
     if (Notification.permission === 'granted') {
       setPushState('subscribing')
       subscribeAnonPush(convToken).then(setPushState)
@@ -54,22 +52,14 @@ export function SendPage() {
   }
 
   useEffect(() => {
-    if (!username) {
-      navigate('/', { replace: true })
-      return
-    }
-
+    if (!username) { navigate('/', { replace: true }); return }
     let active = true
-
     async function validateRecipient() {
-      setValidatingUser(true)
-      setRecipientExists(false)
-
+      setValidatingUser(true); setRecipientExists(false)
       try {
         const res = await api.get(`/api/auth/public/${username}`)
         if (!active) return
-        setRecipientUsername(res.data.data.username)
-        setRecipientExists(true)
+        setRecipientUsername(res.data.data.username); setRecipientExists(true)
       } catch {
         if (!active) return
         setRecipientExists(false)
@@ -77,12 +67,8 @@ export function SendPage() {
         if (active) setValidatingUser(false)
       }
     }
-
     validateRecipient()
-
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [navigate, username])
 
   async function handleSend(asConversation = false) {
@@ -97,10 +83,7 @@ export function SendPage() {
       }
       setSent(true)
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        setRecipientExists(false)
-        return
-      }
+      if (error.response?.status === 404) { setRecipientExists(false); return }
       if (error.response?.status === 429) {
         alert(error.response.data.message || 'Trop de requêtes, veuillez patienter.')
       }
@@ -111,26 +94,29 @@ export function SendPage() {
 
   if (validatingUser) return <LoadingScreen />
 
+  /* ── Compte introuvable ── */
   if (!recipientExists) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0e0e0f' }}>
-        <div className="w-full max-w-sm text-center animate-fade-up">
-          <div className="mb-8">
-            <BackButton to="/" />
-          </div>
-          <h2
-            className="mb-3"
-            style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: '#ede8e1' }}
-          >
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG }}>
+        <BackgroundBlobs />
+        <div className="w-full max-w-sm text-center animate-fade-up" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="mb-8 flex justify-center"><BackButton to="/" /></div>
+          <h2 className="mb-3" style={{ fontFamily: "var(--font-serif)", fontSize: '1.8rem', color: BROWN, fontWeight: 700 }}>
             Compte introuvable
           </h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a756d', lineHeight: 1.7 }}>
+          <p style={{ fontSize: '0.9rem', color: MUTED, fontFamily: 'var(--font-sans)', lineHeight: 1.7 }}>
             Le lien @{username} ne correspond à aucun utilisateur Whispers.
           </p>
           <button
             onClick={() => navigate('/', { replace: true })}
-            className="ws-press mt-8 px-5 py-3 rounded-xl text-sm"
-            style={{ background: '#c8aa82', color: '#0e0e0f', fontFamily: "'Inter', sans-serif", fontWeight: 500 }}
+            className="btn-explosive mt-8 px-6 py-3 rounded-xl text-sm"
+            style={{
+              background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+              color: '#FFF8F5',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
+              boxShadow: '0 6px 20px rgba(192,57,43,0.3)',
+            }}
           >
             Retour à l'accueil
           </button>
@@ -139,51 +125,75 @@ export function SendPage() {
     )
   }
 
+  /* ── Message envoyé ── */
   if (sent) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0e0e0f' }}>
-        <div className="w-full max-w-sm text-center animate-fade-up">
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
+        <BackgroundBlobs />
+        {/* Grain */}
+        <div
+          style={{
+            position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'repeat', backgroundSize: '128px',
+          }}
+        />
+        <div className="w-full max-w-sm text-center animate-fade-up" style={{ position: 'relative', zIndex: 1 }}>
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6 animate-pop"
-            style={{ background: 'rgba(200,170,130,0.1)', border: '1px solid rgba(200,170,130,0.2)' }}
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 animate-pop"
+            style={{
+              background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+              boxShadow: '0 8px 24px rgba(192,57,43,0.3)',
+            }}
           >
-            <Send size={20} style={{ color: '#c8aa82' }} />
+            <Send size={20} style={{ color: '#FFF8F5' }} />
           </div>
-          <h2
-            className="mb-2"
-            style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.6rem', color: '#ede8e1' }}
-          >
-            {convToken ? 'Conversation créée.' : 'Sent.'}
+          <h2 className="mb-2" style={{ fontFamily: "var(--font-gothic)", fontSize: '1.6rem', color: BROWN }}>
+            {convToken ? 'Conversation créée.' : 'Envoyé.'}
           </h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#7a756d', marginBottom: convToken ? '1.5rem' : '0' }}>
-            {convToken 
-              ? "Votre message a été envoyé. Voici le lien unique pour y accéder à tout moment :"
-              : "Your message was delivered anonymously."}
+          <p style={{ fontSize: '0.88rem', color: MUTED, fontFamily: 'var(--font-sans)', marginBottom: convToken ? '1.5rem' : '0', lineHeight: 1.7 }}>
+            {convToken
+              ? 'Votre message a été envoyé. Voici le lien unique pour y accéder à tout moment :'
+              : 'Ton message a été livré anonymement.'}
           </p>
 
           {convToken && (
-            <div className="mb-4 text-left p-4 rounded-xl" style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p className="text-xs mb-1.5" style={{ color: '#c87a7a', fontWeight: 500 }}>
+            <div
+              className="mb-4 text-left p-4 rounded-2xl"
+              style={{
+                background: '#FFF8F5',
+                border: '1px solid rgba(44,26,19,0.08)',
+                boxShadow: '0 2px 12px rgba(44,26,19,0.07)',
+              }}
+            >
+              <p className="mb-2" style={{ color: '#C0392B', fontFamily: 'var(--font-syne)', fontWeight: 800, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 ⚠️ Sauvegarde ce lien, il ne sera plus affiché.
               </p>
               <div className="flex items-center justify-between gap-2 mb-3">
-                <code className="text-xs truncate flex-1" style={{ color: '#ede8e1', background: '#0e0e0f', padding: '6px 8px', borderRadius: '6px' }}>
+                <code
+                  className="text-xs truncate flex-1"
+                  style={{ color: BROWN, background: '#F5EBE6', padding: '6px 8px', borderRadius: '8px', fontFamily: 'var(--font-mono)' }}
+                >
                   {window.location.origin}/c/{convToken}
                 </code>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/c/${convToken}`)
-                  }}
-                  className="ws-press px-3 py-1.5 rounded-lg text-xs"
-                  style={{ background: '#2a2a2c', color: '#c8aa82' }}
+                <button
+                  onClick={() => navigator.clipboard.writeText(`${window.location.origin}/c/${convToken}`)}
+                  className="btn-explosive px-3 py-1.5 rounded-lg text-xs"
+                  style={{ background: BROWN, color: '#FFF8F5', fontFamily: 'var(--font-tech)', fontWeight: 700 }}
                 >
                   Copier
                 </button>
               </div>
               <button
                 onClick={() => navigate(`/c/${convToken}`)}
-                className="ws-press w-full py-2.5 rounded-lg text-sm mb-3"
-                style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82', border: '1px solid rgba(200,170,130,0.2)' }}
+                className="btn-explosive w-full py-2.5 rounded-xl text-sm mb-3"
+                style={{
+                  background: 'rgba(192,57,43,0.08)',
+                  color: RED,
+                  border: '1px solid rgba(192,57,43,0.2)',
+                  fontFamily: 'var(--font-tech)',
+                  fontWeight: 700,
+                }}
               >
                 Accéder à la conversation
               </button>
@@ -192,19 +202,25 @@ export function SendPage() {
                 <button
                   onClick={handleEnablePush}
                   disabled={pushState === 'subscribing' || pushState === 'denied'}
-                  className="ws-press w-full py-2.5 flex items-center justify-center gap-2 rounded-lg text-sm"
+                  className="btn-explosive w-full py-2.5 flex items-center justify-center gap-2 rounded-xl text-sm"
                   style={{
-                    background: pushState === 'denied' ? 'rgba(255,255,255,0.05)' : '#c8aa82',
-                    color: pushState === 'denied' ? '#7a756d' : '#0e0e0f',
+                    background: pushState === 'denied' ? 'rgba(44,26,19,0.04)' : 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+                    color: pushState === 'denied' ? MUTED : '#FFF8F5',
                     cursor: pushState === 'denied' ? 'not-allowed' : 'pointer',
+                    fontFamily: 'var(--font-tech)',
+                    fontWeight: 700,
+                    boxShadow: pushState !== 'denied' ? '0 4px 14px rgba(192,57,43,0.25)' : 'none',
                   }}
                 >
                   {pushState === 'denied' ? <BellOff size={16} /> : <Bell size={16} />}
-                  {pushState === 'subscribing' ? 'Activation...' : pushState === 'denied' ? 'Notifications refusées' : 'M\'alerter si on me répond'}
+                  {pushState === 'subscribing' ? 'Activation...' : pushState === 'denied' ? 'Notifications refusées' : "M'alerter si on me répond"}
                 </button>
               )}
               {pushState === 'subscribed' && (
-                <div className="w-full py-2.5 flex items-center justify-center gap-2 rounded-lg text-sm" style={{ color: '#c8aa82', background: 'rgba(200,170,130,0.1)', border: '1px solid rgba(200,170,130,0.2)' }}>
+                <div
+                  className="w-full py-2.5 flex items-center justify-center gap-2 rounded-xl text-sm"
+                  style={{ color: RED, background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', fontFamily: 'var(--font-tech)', fontWeight: 700 }}
+                >
                   <Bell size={16} />
                   Notifications activées ✓
                 </div>
@@ -215,8 +231,8 @@ export function SendPage() {
           <button
             id="send-another-btn"
             onClick={() => { setMessage(''); setSent(false); setConvToken(null) }}
-            className="ws-press mt-4 text-sm underline underline-offset-4"
-            style={{ color: '#c8aa82', fontFamily: "'Inter', sans-serif" }}
+            className="btn-explosive mt-4 text-sm"
+            style={{ color: RED, fontFamily: 'var(--font-cursive)', fontSize: '1.25rem', fontWeight: 700 }}
           >
             Envoyer un autre message
           </button>
@@ -225,105 +241,153 @@ export function SendPage() {
     )
   }
 
+  /* ── Formulaire principal ── */
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0e0e0f' }}>
-      <div className="w-full max-w-sm animate-fade-up">
-        {/* Back button */}
-        <div className="mb-8">
-          <BackButton to="/" />
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
+      <BackgroundBlobs />
+      {/* Grain */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat', backgroundSize: '128px',
+        }}
+      />
+      <div className="w-full max-w-sm animate-fade-up" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="mb-8"><BackButton to="/" /></div>
 
-        {/* Avatar */}
+        {/* Avatar destinataire */}
         <div className="flex flex-col items-center mb-10">
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+            className="w-18 h-18 rounded-full flex items-center justify-center mb-4 animate-pop"
             style={{
-              background: 'linear-gradient(135deg, #2a2420 0%, #1e1a16 100%)',
-              border: '1px solid rgba(200,170,130,0.2)',
+              width: 72, height: 72,
+              background: 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
+              border: '3px solid rgba(192,57,43,0.2)',
+              boxShadow: '0 8px 24px rgba(192,57,43,0.25)',
             }}
           >
-            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.5rem', color: '#c8aa82' }}>
-              {recipientUsername[0].toUpperCase()}
+            <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.7rem', color: '#FFF8F5', lineHeight: 1 }}>
+              {recipientUsername[0] ? recipientUsername[0].toUpperCase() : ''}
             </span>
           </div>
-          <p className="text-sm" style={{ fontFamily: "'Inter', sans-serif", color: '#7a756d' }}>
-            Send an anonymous message to
-          </p>
-          <p className="mt-0.5" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, color: '#ede8e1' }}>
-            @{recipientUsername}
-          </p>
+          <p style={{ color: MUTED, fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.65rem' }}>Message anonyme pour</p>
+          <p className="mt-1 animate-tracking-in" style={{ color: BROWN, fontFamily: 'var(--font-gothic)', fontSize: '1.15rem', letterSpacing: '0.01em' }}>@{recipientUsername}</p>
         </div>
 
-        {/* Prompt hint */}
+        {/* Prompt en italique cursive */}
         <p
-          className="text-center mb-4 italic"
-          style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1rem', color: '#7a756d' }}
+          className="text-center mb-5 px-2"
+          style={{
+            fontFamily: 'var(--font-cursive)',
+            fontSize: '1.5rem',
+            color: MUTED,
+            lineHeight: 1.4,
+            transform: 'rotate(-1deg)',
+          }}
         >
           "{activePrompt}"
         </p>
 
-        {/* Textarea */}
-        <textarea
-          id="message-textarea"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write something honest..."
-          rows={5}
-          maxLength={300}
-          className="w-full resize-none outline-none rounded-xl px-4 py-3 transition-all"
+        {/* Textarea style papier à lettres */}
+        <div
           style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '0.95rem',
-            background: '#161618',
-            border: '1px solid rgba(255,255,255,0.08)',
-            lineHeight: '1.6',
-            color: '#ede8e1',
+            background: '#FFF8F5',
+            border: `1.5px solid ${focused ? 'rgba(192,57,43,0.4)' : 'rgba(44,26,19,0.08)'}`,
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: focused ? '0 4px 20px rgba(192,57,43,0.1)' : '0 2px 12px rgba(44,26,19,0.06)',
+            transition: 'all 0.2s',
+            position: 'relative',
+            overflow: 'hidden',
           }}
-          onFocus={(e) => (e.target.style.borderColor = 'rgba(200,170,130,0.4)')}
-          onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
-        />
-        <div className="flex justify-between items-center mt-1 mb-5">
-          <span className="text-xs" style={{ color: '#4a4540', fontFamily: "'Inter', sans-serif" }}>
+        >
+          {/* Lignes horizontales subtiles style papier */}
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: 16, right: 16,
+                top: `${52 + i * 28}px`,
+                height: '1px',
+                background: 'rgba(44,26,19,0.04)',
+              }}
+            />
+          ))}
+          <textarea
+            id="message-textarea"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Écris quelque chose d'honnête..."
+            rows={5}
+            maxLength={300}
+            className="w-full resize-none outline-none"
+            style={{
+              fontFamily: 'var(--font-cursive)',
+              fontSize: '1.4rem',
+              background: 'transparent',
+              lineHeight: '1.55',
+              color: BROWN,
+              position: 'relative',
+              zIndex: 1,
+            }}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+          />
+        </div>
+        <div className="flex justify-end mt-1 mb-5">
+          <span style={{ color: message.length > 260 ? RED : '#C4A89E', fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>
             {message.length}/300
           </span>
         </div>
 
-        {/* Send buttons */}
+        {/* Boutons d'envoi */}
         <div className="flex flex-col gap-3">
           <button
             id="send-btn"
             onClick={() => handleSend(false)}
             disabled={!message.trim() || sending}
-            className="ws-press w-full py-3 rounded-xl flex items-center justify-center gap-2"
+            className="btn-explosive w-full py-3.5 rounded-xl flex items-center justify-center gap-2"
             style={{
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 500,
-              background: message.trim() && !sending ? '#c8aa82' : '#1e1e20',
-              color: message.trim() && !sending ? '#0e0e0f' : '#4a4540',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              fontSize: '0.8rem',
+              background: message.trim() && !sending
+                ? 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)'
+                : 'rgba(44, 26, 19, 0.06)',
+              color: message.trim() && !sending ? '#FFF8F5' : '#C4A89E',
               cursor: message.trim() && !sending ? 'pointer' : 'not-allowed',
+              boxShadow: message.trim() && !sending ? '0 6px 20px rgba(192,57,43,0.28)' : 'none',
+              transition: 'all 0.2s',
             }}
           >
-            <Send size={15} />
-            {sending ? 'Sending...' : 'Send anonymously'}
+            <Send size={16} />
+            {sending ? 'Envoi...' : 'Envoyer anonymement'}
           </button>
-          
-          <div className="relative flex items-center py-2">
-            <div className="flex-grow border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}></div>
-            <span className="flex-shrink-0 mx-4 text-xs" style={{ color: '#7a756d' }}>Ou bien</span>
-            <div className="flex-grow border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}></div>
+
+          <div className="relative flex items-center py-1">
+            <div className="flex-grow border-t" style={{ borderColor: 'rgba(44,26,19,0.07)' }} />
+            <span className="flex-shrink-0 mx-4" style={{ color: MUTED, fontFamily: 'var(--font-cursive)', fontSize: '1.25rem' }}>ou bien</span>
+            <div className="flex-grow border-t" style={{ borderColor: 'rgba(44,26,19,0.07)' }} />
           </div>
 
           <button
             id="send-conv-btn"
             onClick={() => handleSend(true)}
             disabled={!message.trim() || sending}
-            className="ws-press w-full py-3 rounded-xl flex items-center justify-center gap-2 border"
+            className="btn-explosive w-full py-3.5 rounded-xl flex items-center justify-center gap-2 border"
             style={{
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 500,
-              background: message.trim() && !sending ? 'rgba(200,170,130,0.08)' : 'transparent',
-              color: message.trim() && !sending ? '#c8aa82' : '#4a4540',
-              borderColor: message.trim() && !sending ? 'rgba(200,170,130,0.2)' : 'rgba(255,255,255,0.06)',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              fontSize: '0.75rem',
+              background: message.trim() && !sending ? 'rgba(192,57,43,0.06)' : 'transparent',
+              color: message.trim() && !sending ? RED : '#C4A89E',
+              borderColor: message.trim() && !sending ? 'rgba(192,57,43,0.2)' : 'rgba(44,26,19,0.07)',
               cursor: message.trim() && !sending ? 'pointer' : 'not-allowed',
             }}
           >
@@ -331,11 +395,11 @@ export function SendPage() {
           </button>
         </div>
 
-        {/* Privacy note */}
+        {/* Note confidentialité */}
         <div className="flex items-center justify-center gap-1.5 mt-6">
-          <Lock size={11} style={{ color: '#4a4540' }} />
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '0.75rem', color: '#4a4540' }}>
-            100% anonymous — your identity is never revealed
+          <Lock size={11} style={{ color: '#C4A89E' }} />
+          <span style={{ fontSize: '0.72rem', color: '#C4A89E', letterSpacing: '0.01em' }}>
+            100% anonyme — ton identité n'est jamais révélée
           </span>
         </div>
       </div>

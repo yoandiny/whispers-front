@@ -23,6 +23,13 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)}j`
 }
 
+import { BackgroundBlobs } from '@/components/shared/BackgroundBlobs'
+
+const BG = 'linear-gradient(160deg, #FAF6F0 0%, #F5EBE6 55%, #FAF0EE 100%)'
+const RED = '#C0392B'
+const BROWN = '#2C1A13'
+const MUTED = '#8A6B5E'
+
 export function ConversationsListPage() {
   const navigate = useNavigate()
   const [convs, setConvs] = useState<ConvListItem[]>([])
@@ -31,64 +38,91 @@ export function ConversationsListPage() {
 
   useEffect(() => {
     api.get('/api/conversations/owner')
-      .then(res => {
-        setConvs(res.data.data)
-        setLoading(false)
-      })
-      .catch(() => {
-        setLoading(false)
-      })
+      .then(res => { setConvs(res.data.data); setLoading(false) })
+      .catch(() => { setLoading(false) })
   }, [])
 
   if (loading) return <LoadingScreen />
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen pb-24" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
+      <BackgroundBlobs />
+      {/* Texture grain */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat', backgroundSize: '128px',
+        }}
+      />
+
       {/* Header */}
-      <div className="sticky top-0 z-10 px-5 py-4" style={{ background: '#0e0e0f', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.4rem', color: '#ede8e1' }}>Conversations</h1>
+      <div
+        className="sticky top-0 z-10 px-5 py-4"
+        style={{
+          background: 'rgba(250, 246, 240, 0.85)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(44,26,19,0.06)',
+        }}
+      >
+        <h1 style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.4rem', color: BROWN }}>
+          Conversations
+        </h1>
       </div>
 
       {/* List */}
-      <div className="px-5 pt-4">
+      <div className="px-5 pt-5 relative z-10">
         {convs.length === 0 ? (
-          <div className="text-center py-16">
-            <MessageSquareText size={32} className="mx-auto mb-3 text-[#2a2a2c]" />
-            <p className="text-sm text-[#4a4540]">Aucune conversation en cours</p>
+          <div className="text-center py-20">
+            <MessageSquareText size={32} className="mx-auto mb-4" style={{ color: 'rgba(44,26,19,0.15)' }} />
+            <p className="text-sm font-medium" style={{ color: MUTED, fontFamily: 'var(--font-syne)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Aucune conversation en cours</p>
+            <p className="text-xs mt-1.5" style={{ color: '#C4A89E', fontFamily: 'var(--font-sans)' }}>Les gens peuvent en démarrer via ton lien.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {convs.map((c) => (
               <div 
                 key={c.id} 
                 onClick={() => navigate(`/conversations/${c.id}`)}
-                className="ws-lift rounded-xl cursor-pointer p-4 flex items-center gap-3"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="card-explosive rounded-2xl cursor-pointer p-4 flex items-center gap-3 animate-fade-up"
+                style={{
+                  background: '#FFF8F5',
+                  border: '1px solid rgba(44,26,19,0.06)',
+                  boxShadow: '0 2px 8px rgba(44,26,19,0.04)',
+                }}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1e1e20] text-[#7a756d] flex-shrink-0">
-                  <MessageSquareText size={18} />
+                <div
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(192,57,43,0.08)', color: RED }}
+                >
+                  <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.1rem', fontWeight: 900 }}>
+                    {c.anonName[0].toUpperCase()}
+                  </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-[#ede8e1]">{c.anonName}</span>
-                    <span className="text-xs text-[#7a756d]">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-sm font-semibold" style={{ color: BROWN, fontFamily: 'var(--font-sans)', fontSize: '0.95rem' }}>{c.anonName}</span>
+                    <span className="text-xs" style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>
                       {timeAgo(c.lastMessage?.createdAt || c.createdAt)}
                     </span>
                   </div>
-                  <p className="text-sm text-[#7a756d] truncate">
+                  <p className="text-sm truncate" style={{ color: c.unreadCount > 0 ? BROWN : MUTED, fontFamily: 'var(--font-sans)', fontWeight: c.unreadCount > 0 ? 600 : 400 }}>
                     {c.lastMessage ? (
                       <>
-                        {c.lastMessage.sender === 'owner' ? 'Vous: ' : ''}
+                        {c.lastMessage.sender === 'owner' ? <span style={{ opacity: 0.7 }}>Vous: </span> : ''}
                         {c.lastMessage.content}
                       </>
                     ) : (
-                      'Nouvelle conversation'
+                      <span style={{ fontStyle: 'italic' }}>Nouvelle conversation</span>
                     )}
                   </p>
                 </div>
                 {c.unreadCount > 0 && (
-                  <div className="w-5 h-5 rounded-full bg-[#c8aa82] flex items-center justify-center flex-shrink-0">
-                    <span className="text-[10px] font-bold text-[#0e0e0f]">{c.unreadCount}</span>
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: RED, boxShadow: '0 2px 6px rgba(192,57,43,0.4)' }}
+                  >
+                    <span className="text-[10px] font-black text-[#FFF8F5] pb-0.5" style={{ fontFamily: 'var(--font-serif)' }}>{c.unreadCount}</span>
                   </div>
                 )}
               </div>

@@ -75,8 +75,8 @@ button:disabled,
 
 /* Pulsing dot for unread badge */
 @keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(200,170,130,0.4); }
-  50%       { box-shadow: 0 0 0 4px rgba(200,170,130,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); }
+  50%       { box-shadow: 0 0 0 4px rgba(124,92,252,0); }
 }
 
 .animate-fade-in  { animation: ws-fade-in 0.4s ease both; }
@@ -97,12 +97,56 @@ button:disabled,
 .ws-press:hover  { transform: translateY(-1px); }
 .ws-press:active { transform: translateY(0) scale(0.97); }
 
-.ws-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+/* ─── Explosive & Blob Animations ─────────────────────────────── */
+@keyframes blob-float {
+  0% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+  33% { transform: translate(35px, -55px) scale(1.1) rotate(120deg); }
+  66% { transform: translate(-25px, 25px) scale(0.95) rotate(240deg); }
+  100% { transform: translate(0px, 0px) scale(1) rotate(360deg); }
 }
-.ws-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+@keyframes tracking-in-expand {
+  0% { letter-spacing: -0.25em; opacity: 0; filter: blur(8px); }
+  40% { opacity: 0.6; }
+  100% { letter-spacing: 0em; opacity: 1; filter: blur(0); }
+}
+
+.animate-blob-float {
+  animation: blob-float 18s infinite ease-in-out;
+}
+
+.animate-tracking-in {
+  animation: tracking-in-expand 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Hover effects */
+.btn-explosive {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.btn-explosive:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 10px 22px var(--primary-glow);
+}
+.btn-explosive:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.card-explosive {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.card-explosive:hover {
+  transform: translateY(-6px) scale(1.02) rotate(0.6deg);
+  box-shadow: 0 16px 28px rgba(192, 57, 43, 0.12);
+  border-color: var(--primary) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

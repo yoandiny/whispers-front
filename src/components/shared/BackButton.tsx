@@ -14,10 +14,10 @@ export function BackButton({ to, label = 'Retour' }: BackButtonProps) {
     <button
       id="back-btn"
       onClick={() => (to ? navigate(to) : navigate(-1))}
-      className="ws-press flex items-center gap-1.5 text-sm rounded-lg px-2 py-1 -ml-2 hover:opacity-100"
-      style={{ color: '#7a756d', fontFamily: "'Inter', sans-serif" }}
-      onMouseEnter={(e) => (e.currentTarget.style.color = '#c8aa82')}
-      onMouseLeave={(e) => (e.currentTarget.style.color = '#7a756d')}
+      className="btn-explosive flex items-center gap-1.5 text-sm rounded-lg px-2 py-1 -ml-2"
+      style={{ color: '#8A6B5E', fontFamily: 'var(--font-sans)', transition: 'color 0.15s' }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = '#C0392B')}
+      onMouseLeave={(e) => (e.currentTarget.style.color = '#8A6B5E')}
     >
       <ArrowLeft size={15} />
       {label}

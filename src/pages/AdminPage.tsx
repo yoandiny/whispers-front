@@ -48,6 +48,11 @@ interface UserProfile extends AdminUser {
   messages: { id: string; text: string; read: boolean; createdAt: string }[]
 }
 
+const RED = '#C0392B'
+const BROWN = '#2C1A13'
+const MUTED = '#8A6B5E'
+const BG = 'linear-gradient(180deg, #FAF6F0 0%, #F5EBE6 50%, #FAF0EE 100%)'
+
 function fmtDate(d: string) {
   return new Date(d).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })
 }
@@ -155,41 +160,41 @@ export function AdminPage() {
   }
 
   const TABS: { id: Tab; label: string; icon: typeof Users }[] = [
-    { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'users', label: 'Comptes', icon: Users },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'notifications', label: 'Alertes', icon: Bell },
   ]
 
   return (
-    <div className="min-h-screen" style={{ background: '#0e0e0f', fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: BG, fontFamily: 'var(--font-sans)' }}>
       {/* Top bar */}
       <div
         className="sticky top-0 z-10 px-5 py-4 flex items-center justify-between"
-        style={{ background: '#0e0e0f', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: '#FFF8F5', borderBottom: '1px solid rgba(44, 26, 19, 0.08)' }}
       >
         <div className="flex items-center gap-3">
           <button
             id="admin-back-btn"
             onClick={() => navigate('/home')}
-            className="ws-press w-8 h-8 flex items-center justify-center rounded-lg"
-            style={{ background: '#1e1e20', border: '1px solid rgba(255,255,255,0.06)', color: '#7a756d' }}
+            className="btn-explosive w-8 h-8 flex items-center justify-center rounded-lg"
+            style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.08)', color: MUTED }}
             title="Retour à l'application"
           >
             <ArrowLeft size={14} />
           </button>
           <div className="flex items-center gap-2">
-            <Shield size={18} style={{ color: '#c8aa82' }} />
-            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.25rem', color: '#ede8e1' }}>
-              Administration
+            <Shield size={18} style={{ color: RED }} />
+            <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.1rem', color: BROWN }}>
+              Admin
             </span>
           </div>
         </div>
         <button
           id="admin-logout-btn"
           onClick={handleLogout}
-          className="ws-press w-8 h-8 flex items-center justify-center rounded-lg"
-          style={{ background: '#1e1e20', border: '1px solid rgba(255,255,255,0.06)', color: '#7a756d' }}
+          className="btn-explosive w-8 h-8 flex items-center justify-center rounded-lg"
+          style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.08)', color: MUTED }}
           title="Déconnexion"
         >
           <LogOut size={13} />
@@ -205,12 +210,15 @@ export function AdminPage() {
               key={id}
               id={`admin-tab-${id}`}
               onClick={() => setTab(id)}
-              className="ws-press flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs"
+              className="btn-explosive flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs"
               style={{
-                background: active ? 'rgba(200,170,130,0.12)' : '#161618',
-                color: active ? '#c8aa82' : '#7a756d',
-                border: active ? '1px solid rgba(200,170,130,0.2)' : '1px solid rgba(255,255,255,0.05)',
-                fontWeight: active ? 600 : 400,
+                background: active ? 'rgba(192, 57, 43, 0.08)' : '#FFF8F5',
+                color: active ? RED : MUTED,
+                border: active ? '1px solid rgba(192, 57, 43, 0.2)' : '1px solid rgba(44, 26, 19, 0.08)',
+                fontWeight: 700,
+                fontFamily: 'var(--font-tech)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
               }}
             >
               <Icon size={14} />
@@ -225,11 +233,11 @@ export function AdminPage() {
         {tab === 'dashboard' && stats && (
           <div className="grid grid-cols-2 gap-3 animate-fade-up">
             <StatCard label="Utilisateurs" value={stats.totalUsers} />
-            <StatCard label="Administrateurs" value={stats.totalAdmins} />
+            <StatCard label="Admins" value={stats.totalAdmins} />
             <StatCard label="Messages" value={stats.totalMessages} />
             <StatCard label="Non lus" value={stats.unreadMessages} />
-            <StatCard label="Nouveaux comptes (7j)" value={stats.newUsers7d} />
-            <StatCard label="Nouveaux messages (7j)" value={stats.newMessages7d} />
+            <StatCard label="Nouveaux users (7j)" value={stats.newUsers7d} />
+            <StatCard label="Nouveaux msg (7j)" value={stats.newMessages7d} />
             <StatCard label="Abonnés push" value={stats.pushSubscriptions} highlight />
           </div>
         )}
@@ -241,31 +249,31 @@ export function AdminPage() {
             {users.map((u) => (
               <div
                 key={u.id}
-                className="rounded-xl px-4 py-3 flex items-center justify-between"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="card-explosive rounded-xl px-4 py-3 flex items-center justify-between"
+                style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.06)' }}
               >
-                <button onClick={() => openProfile(u.id)} className="ws-press flex items-center gap-3 text-left flex-1 min-w-0">
+                <button onClick={() => openProfile(u.id)} className="flex items-center gap-3 text-left flex-1 min-w-0">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82' }}
+                    style={{ background: 'rgba(192, 57, 43, 0.08)', color: RED, fontFamily: 'var(--font-gothic)', fontSize: '0.9rem' }}
                   >
                     {u.username[0].toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm flex items-center gap-1.5" style={{ color: '#ede8e1' }}>
+                    <p className="text-sm flex items-center gap-1.5" style={{ color: BROWN, fontWeight: 600 }}>
                       @{u.username}
-                      {u.role === 'admin' && <Shield size={11} style={{ color: '#c8aa82' }} />}
+                      {u.role === 'admin' && <Shield size={11} style={{ color: RED }} />}
                     </p>
-                    <p className="text-xs" style={{ color: '#7a756d' }}>
-                      {u.messageCount} message(s) · {fmtDate(u.createdAt)}
+                    <p className="text-xs" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>
+                      {u.messageCount} msg · {fmtDate(u.createdAt)}
                     </p>
                   </div>
                 </button>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => openProfile(u.id)} className="ws-press" style={{ color: '#7a756d' }}>
+                  <button onClick={() => openProfile(u.id)} className="btn-explosive" style={{ color: MUTED }}>
                     <ChevronRight size={16} />
                   </button>
-                  <button id={`admin-delete-user-${u.id}`} className="ws-press" onClick={() => deleteUser(u.id)} style={{ color: '#c87a7a' }}>
+                  <button id={`admin-delete-user-${u.id}`} className="btn-explosive" onClick={() => deleteUser(u.id)} style={{ color: RED }}>
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -279,24 +287,23 @@ export function AdminPage() {
           <div className="flex flex-col gap-4 animate-fade-up">
             {/* Info banner */}
             <div
-              className="rounded-xl px-4 py-3 flex items-start gap-3"
-              style={{ background: 'rgba(200,170,130,0.06)', border: '1px solid rgba(200,170,130,0.12)' }}
+              className="card-explosive rounded-xl px-4 py-3 flex items-start gap-3"
+              style={{ background: 'rgba(192, 57, 43, 0.04)', border: '1px solid rgba(192, 57, 43, 0.12)' }}
             >
-              <Bell size={15} style={{ color: '#c8aa82', marginTop: 2, flexShrink: 0 }} />
-              <p className="text-xs leading-relaxed" style={{ color: '#7a756d' }}>
-                Envoie une notification personnalisée <strong style={{ color: '#c8aa82' }}>in-app</strong> et{' '}
-                <strong style={{ color: '#c8aa82' }}>web-push</strong> — à tous les utilisateurs ou à un compte précis.
-                Les notifications push ne sont envoyées qu'aux appareils ayant activé l'autorisation.
+              <Bell size={15} style={{ color: RED, marginTop: 2, flexShrink: 0 }} />
+              <p className="text-xs leading-relaxed" style={{ color: MUTED }}>
+                Envoie une notification personnalisée <strong style={{ color: RED }}>in-app</strong> et{' '}
+                <strong style={{ color: RED }}>web-push</strong> — à tous les utilisateurs ou à un compte précis.
               </p>
             </div>
 
             {/* Target toggle */}
             <div>
-              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Destinataire</p>
+              <p className="text-xs mb-2" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>Destinataire</p>
               <div className="flex gap-2">
                 {([
-                  { id: 'all', label: '📣 Tout le monde' },
-                  { id: 'user', label: '🎯 Utilisateur ciblé' },
+                  { id: 'all', label: '📣 Tous' },
+                  { id: 'user', label: '🎯 Cible' },
                 ] as const).map((opt) => {
                   const active = notifTarget === opt.id
                   return (
@@ -304,12 +311,14 @@ export function AdminPage() {
                       key={opt.id}
                       id={`admin-notif-target-${opt.id}`}
                       onClick={() => setNotifTarget(opt.id)}
-                      className="ws-press flex-1 py-2.5 rounded-xl text-sm"
+                      className="btn-explosive flex-1 py-2.5 rounded-xl text-xs"
                       style={{
-                        background: active ? 'rgba(200,170,130,0.12)' : '#161618',
-                        color: active ? '#c8aa82' : '#7a756d',
-                        border: active ? '1px solid rgba(200,170,130,0.2)' : '1px solid rgba(255,255,255,0.05)',
-                        fontWeight: active ? 600 : 400,
+                        background: active ? 'rgba(192, 57, 43, 0.08)' : '#FFF8F5',
+                        color: active ? RED : MUTED,
+                        border: active ? '1px solid rgba(192, 57, 43, 0.2)' : '1px solid rgba(44, 26, 19, 0.08)',
+                        fontWeight: 700,
+                        fontFamily: 'var(--font-tech)',
+                        textTransform: 'uppercase',
                       }}
                     >
                       {opt.label}
@@ -321,13 +330,13 @@ export function AdminPage() {
 
             {notifTarget === 'user' && (
               <div>
-                <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Sélectionner un compte</p>
+                <p className="text-xs mb-2" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>Sélectionner un compte</p>
                 <select
                   id="admin-notif-user"
                   value={notifUserId}
                   onChange={(e) => setNotifUserId(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                  style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                  style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.08)', color: BROWN }}
                 >
                   <option value="">Sélectionner un utilisateur…</option>
                   {users.map((u) => (
@@ -340,7 +349,7 @@ export function AdminPage() {
             )}
 
             <div>
-              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Titre</p>
+              <p className="text-xs mb-2" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>Titre</p>
               <input
                 id="admin-notif-title"
                 type="text"
@@ -349,13 +358,13 @@ export function AdminPage() {
                 placeholder="Ex: Maintenance programmée"
                 maxLength={120}
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.08)', color: BROWN }}
               />
-              <p className="text-xs mt-1 text-right" style={{ color: '#3a3530' }}>{notifTitle.length}/120</p>
+              <p className="text-xs mt-1 text-right" style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>{notifTitle.length}/120</p>
             </div>
 
             <div>
-              <p className="text-xs mb-2" style={{ color: '#7a756d' }}>Message</p>
+              <p className="text-xs mb-2" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>Message</p>
               <textarea
                 id="admin-notif-body"
                 value={notifBody}
@@ -364,30 +373,32 @@ export function AdminPage() {
                 maxLength={300}
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.06)', color: '#ede8e1' }}
+                style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.08)', color: BROWN }}
               />
-              <p className="text-xs mt-1 text-right" style={{ color: '#3a3530' }}>{notifBody.length}/300</p>
+              <p className="text-xs mt-1 text-right" style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.65rem' }}>{notifBody.length}/300</p>
             </div>
 
             <button
               id="admin-notif-send"
               onClick={sendNotification}
               disabled={sendingNotif || !notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId)}
-              className="ws-press w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm"
+              className="btn-explosive w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs"
               style={{
                 background: (!notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId))
-                  ? 'rgba(200,170,130,0.15)'
-                  : '#c8aa82',
+                  ? 'rgba(44, 26, 19, 0.05)'
+                  : 'linear-gradient(135deg, #C0392B 0%, #8B0000 100%)',
                 color: (!notifTitle.trim() || !notifBody.trim() || (notifTarget === 'user' && !notifUserId))
-                  ? '#6a5d48'
-                  : '#0e0e0f',
-                fontWeight: 500,
+                  ? '#C4A89E'
+                  : '#FFF8F5',
+                fontWeight: 700,
                 cursor: sendingNotif ? 'wait' : 'pointer',
-                transition: 'background 0.2s, color 0.2s',
+                fontFamily: 'var(--font-tech)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
               }}
             >
               <Send size={15} />
-              {sendingNotif ? 'Envoi en cours...' : notifTarget === 'all' ? 'Envoyer à tous' : 'Envoyer à cet utilisateur'}
+              {sendingNotif ? 'Envoi...' : notifTarget === 'all' ? 'Envoyer à tous' : 'Envoyer'}
             </button>
           </div>
         )}
@@ -399,18 +410,18 @@ export function AdminPage() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className="rounded-xl px-4 py-3"
-                style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="card-explosive rounded-xl px-4 py-3"
+                style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.06)' }}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs" style={{ color: '#c8aa82' }}>
+                  <span className="text-xs" style={{ color: RED, fontWeight: 600 }}>
                     → @{m.recipient.username}
                   </span>
-                  <span className="text-xs" style={{ color: '#4a4540' }}>
+                  <span className="text-[10px]" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>
                     {fmtDate(m.createdAt)}
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: '#ede8e1' }}>
+                <p className="text-sm leading-relaxed" style={{ color: BROWN }}>
                   {m.text}
                 </p>
               </div>
@@ -423,17 +434,17 @@ export function AdminPage() {
       {profile && (
         <div
           className="fixed inset-0 z-30 flex flex-col animate-slide-up"
-          style={{ background: '#0e0e0f' }}
+          style={{ background: '#FAF6F0' }}
         >
           <div
             className="px-5 py-4 flex items-center gap-3"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ background: '#FFF8F5', borderBottom: '1px solid rgba(44, 26, 19, 0.08)' }}
           >
-            <button onClick={() => setProfile(null)} style={{ color: '#7a756d' }}>
+            <button onClick={() => setProfile(null)} style={{ color: MUTED }}>
               <ArrowLeft size={18} />
             </button>
-            <span style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.1rem', color: '#ede8e1' }}>
-              Profil
+            <span style={{ fontFamily: 'var(--font-gothic)', fontSize: '1.1rem', color: BROWN }}>
+              Profil Admin
             </span>
           </div>
 
@@ -441,16 +452,16 @@ export function AdminPage() {
             <div className="flex items-center gap-4 mb-6">
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center text-xl"
-                style={{ background: 'rgba(200,170,130,0.1)', color: '#c8aa82' }}
+                style={{ background: 'rgba(192, 57, 43, 0.08)', color: RED, fontFamily: 'var(--font-gothic)' }}
               >
                 {profile.username[0].toUpperCase()}
               </div>
               <div>
-                <p className="text-lg flex items-center gap-2" style={{ color: '#ede8e1' }}>
+                <p className="text-lg flex items-center gap-2" style={{ color: BROWN, fontWeight: 600 }}>
                   @{profile.username}
-                  {profile.role === 'admin' && <Shield size={14} style={{ color: '#c8aa82' }} />}
+                  {profile.role === 'admin' && <Shield size={14} style={{ color: RED }} />}
                 </p>
-                <p className="text-xs" style={{ color: '#7a756d' }}>
+                <p className="text-xs" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>
                   Inscrit le {fmtDate(profile.createdAt)}
                 </p>
               </div>
@@ -459,14 +470,21 @@ export function AdminPage() {
             <button
               id="admin-profile-delete-btn"
               onClick={() => deleteUser(profile.id)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm mb-6"
-              style={{ background: 'rgba(120,60,60,0.1)', border: '1px solid rgba(120,60,60,0.2)', color: '#c87a7a' }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs mb-6 btn-explosive"
+              style={{
+                background: 'rgba(192, 57, 43, 0.06)',
+                border: '1px solid rgba(192, 57, 43, 0.2)',
+                color: RED,
+                fontFamily: 'var(--font-tech)',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+              }}
             >
               <Trash2 size={14} />
               Supprimer ce compte
             </button>
 
-            <p className="text-xs mb-2" style={{ color: '#7a756d' }}>
+            <p className="text-xs mb-2" style={{ color: MUTED, fontFamily: 'var(--font-mono)' }}>
               Messages reçus ({profile.messages.length})
             </p>
             <div className="flex flex-col gap-2">
@@ -474,13 +492,13 @@ export function AdminPage() {
               {profile.messages.map((m) => (
                 <div
                   key={m.id}
-                  className="rounded-xl px-4 py-3"
-                  style={{ background: '#161618', border: '1px solid rgba(255,255,255,0.05)' }}
+                  className="card-explosive rounded-xl px-4 py-3"
+                  style={{ background: '#FFF8F5', border: '1px solid rgba(44, 26, 19, 0.06)' }}
                 >
-                  <p className="text-sm" style={{ color: '#ede8e1' }}>
+                  <p className="text-sm" style={{ color: BROWN }}>
                     {m.text}
                   </p>
-                  <p className="text-xs mt-1" style={{ color: '#4a4540' }}>
+                  <p style={{ color: MUTED, fontFamily: 'var(--font-mono)', fontSize: '0.62rem', marginTop: '6px' }}>
                     {fmtDate(m.createdAt)}
                   </p>
                 </div>
@@ -496,14 +514,14 @@ export function AdminPage() {
 function StatCard({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
     <div
-      className="ws-lift rounded-2xl p-4"
+      className="card-explosive rounded-2xl p-4"
       style={{
-        background: highlight ? 'rgba(200,170,130,0.07)' : '#161618',
-        border: highlight ? '1px solid rgba(200,170,130,0.18)' : '1px solid rgba(255,255,255,0.05)',
+        background: highlight ? 'rgba(192, 57, 43, 0.06)' : '#FFF8F5',
+        border: highlight ? '1px solid rgba(192, 57, 43, 0.18)' : '1px solid rgba(44, 26, 19, 0.05)',
       }}
     >
-      <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: '1.8rem', color: highlight ? '#c8aa82' : '#c8aa82' }}>{value}</p>
-      <p className="text-xs mt-1" style={{ color: highlight ? '#8a7a62' : '#7a756d' }}>
+      <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: highlight ? RED : BROWN, fontWeight: 900, lineHeight: 1.1 }}>{value}</p>
+      <p className="text-xs mt-1" style={{ color: MUTED }}>
         {label}
       </p>
     </div>
@@ -512,7 +530,7 @@ function StatCard({ label, value, highlight }: { label: string; value: number; h
 
 function Empty({ label }: { label: string }) {
   return (
-    <div className="text-center py-12 text-sm" style={{ color: '#4a4540' }}>
+    <div className="text-center py-12 text-sm" style={{ color: MUTED, fontFamily: 'var(--font-sans)' }}>
       {label}
     </div>
   )
